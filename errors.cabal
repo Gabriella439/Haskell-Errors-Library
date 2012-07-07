@@ -1,0 +1,28 @@
+Name: errors
+Version: 1.0.0
+Cabal-Version: >=1.14.0
+Build-Type: Simple
+License: BSD3
+License-File: LICENSE
+Copyright: 2012 Gabriel Gonzalez
+Author: Gabriel Gonzalez
+Maintainer: Gabriel439@gmail.com
+Stability: Experimental
+Bug-Reports: https://github.com/Gabriel439/Haskell-Error-Library/issues
+Synopsis: Simplified error-handling
+Description: The one-stop shop for all error-handling needs
+Category: Control, Error Handling
+Tested-With: GHC ==7.4.1
+Source-Repository head
+    Type: git
+    Location: https://github.com/Gabriel439/Haskell-Error-Library
+
+Library
+    Build-Depends: base >= 4 && < 5, EitherT, safe, transformers
+    Exposed-Modules:
+        Data.EitherR,
+        Control.Error.Script,
+        Control.Error.Util,
+        Safe.Error
+    GHC-Options: -O2
+    Default-Language: Haskell2010
