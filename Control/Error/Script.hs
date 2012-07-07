@@ -10,7 +10,14 @@
 >     tryIO $ print (n + 1)
 -}
 
-module Control.Error.Script where
+module Control.Error.Script (
+    -- * The Script Monad
+    Script,
+    runScript,
+    tryMaybe,
+    tryEither,
+    tryIO
+    ) where
 
 import Control.Exception
 import Control.Monad.Trans.Either

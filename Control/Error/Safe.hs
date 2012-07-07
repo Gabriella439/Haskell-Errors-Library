@@ -6,9 +6,39 @@
 
     I suffix the 'Either'-compatible functions with @Err@ and prefix the
     'EitherT'-compatible functions with @try@.
+
+    Note that this library re-exports the 'Maybe' compatible functions from
+    @Safe@ in the "Control.Error" module, so they are not provided here.
 -}
 
-module Control.Error.Safe where
+module Control.Error.Safe (
+    -- * Either-compatible functions
+    tailErr,
+    initErr,
+    headErr,
+    lastErr,
+    minimumErr,
+    maximumErr,
+    foldr1Err,
+    foldl1Err,
+    foldl1Err',
+    atErr,
+    readErr,
+    assertErr,
+    -- * EitherT-compatible functions
+    tryTail,
+    tryInit,
+    tryHead,
+    tryLast,
+    tryMinimum,
+    tryMaximum,
+    tryFoldr1,
+    tryFoldl1,
+    tryFoldl1',
+    tryAt,
+    tryRead,
+    tryAssert,
+    ) where
 
 import Control.Error.Util
 import Control.Monad.Trans.Either
