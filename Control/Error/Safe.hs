@@ -8,7 +8,7 @@
     'EitherT'-compatible functions with @try@.
 -}
 
-module Safe.Error where
+module Control.Error.Safe where
 
 import Control.Error.Util
 import Control.Monad.Trans.Either

@@ -12,21 +12,18 @@
     * A more powerful 'catchE' statement that allows you to change the type of
       error value returned
 
-    More advanced users can take advantage of the fact that 'EitherR' defines an
-    entirely symmetric \"success monad\" where error-handling computations are
-    the default and successful results terminate the monad.  This allows you to
-    chain error-handlers and pass around values other than exceptions until you
-    can finally recover from the error:
+    More advanced users can take advantage of the fact that 'EitherR' and
+    'EitherRT' define an entirely symmetric \"success monad\" where
+    error-handling computations are the default and successful results terminate
+    the monad.  This allows you to chain error-handlers and pass around values
+    other than exceptions until you can finally recover from the error:
 
 > runEitherRT $ do
 >     e2 <- ioExceptionHandler e1
 >     bool <- arithmeticExceptionhandler e2
 >     when bool $ lift $ putStrLn "DEBUG: Arithmetic handler did something"
 
-    If any of the error handlers 'succeed', no other handlers are tried.
-
-    I keep the names of the types general since they can be used for things
-    other than error-handling.
+    If any of the above error handlers 'succeed', no other handlers are tried.
 -}
 
 module Data.EitherR (
@@ -37,6 +34,7 @@ module Data.EitherR (
     throwE,
     catchE,
     handleE,
+    fmapL,
     -- * EitherRT
     EitherRT(..),
     -- ** Operations in the EitherRT monad
@@ -45,7 +43,8 @@ module Data.EitherR (
     -- ** Conversions to the EitherT monad
     throwT,
     catchT,
-    handleT
+    handleT,
+    fmapLT
     ) where
 
 import Control.Applicative
@@ -94,6 +93,10 @@ e `catchE` f = runEitherR $ (EitherR e) >>= (EitherR . f)
 handleE :: (a -> Either b r) -> Either a r -> Either b r
 handleE = flip catchE
 
+-- | Map a function over the 'Left' value of an 'Either'
+fmapL :: (a -> b) -> Either a r -> Either b r
+fmapL f = runEitherR . fmap f . EitherR
+
 -- | 'EitherR' converted into a monad transformer
 newtype EitherRT r m e = EitherRT { runEitherRT :: EitherT e m r }
 
@@ -134,3 +137,7 @@ e `catchT` f = runEitherRT $ (EitherRT e) >>= (EitherRT . f)
 -- | 'catchT' with the arguments flipped
 handleT :: (Monad m) => (a -> EitherT b m r) -> EitherT a m r -> EitherT b m r
 handleT = flip catchT
+
+-- | Map a function over the 'Left' value of an 'EitherT'
+fmapLT :: (Monad m) => (a -> b) -> EitherT a m r -> EitherT b m r
+fmapLT f = runEitherRT . fmap f . EitherRT

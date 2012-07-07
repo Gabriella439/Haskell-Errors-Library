@@ -1,12 +1,12 @@
 {-|
-    Use this module if you want to write simple scripts, but you prefer to use
+    Use this module if you like to write simple scripts, but you prefer to use
     'EitherT' to handle errors rather than @Control.Exception@.
 
-> import Control.Script
+> import Control.Error
 >
 > main = runScript $ do
->     str <- tryIO $ getLine
->     n   <- tryError $ readErr str
+>     str <- tryIO getLine
+>     n   <- tryRead "Read failed" str
 >     tryIO $ print (n + 1)
 -}
 
@@ -15,6 +15,7 @@ module Control.Error.Script where
 import Control.Exception
 import Control.Monad.Trans.Either
 import Control.Error.Util
+import Data.EitherR
 import System.IO
 import System.Exit
 
