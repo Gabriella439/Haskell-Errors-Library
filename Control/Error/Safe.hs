@@ -1,5 +1,5 @@
 {-|
-    This module extends the @Safe@ library's functions with corresponding
+    This module extends the @safe@ library's functions with corresponding
     versions compatible with 'Either' and 'EitherT'.
 
     All functions take an exceptional value to return should they fail.
@@ -8,7 +8,7 @@
     'EitherT'-compatible functions with @try@.
 
     Note that this library re-exports the 'Maybe' compatible functions from
-    @Safe@ in the "Control.Error" module, so they are not provided here.
+    @safe@ in the "Control.Error" module, so they are not provided here.
 -}
 
 module Control.Error.Safe (
