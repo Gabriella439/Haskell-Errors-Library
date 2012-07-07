@@ -4,8 +4,7 @@
 
     This module provides the following simple benefits to the casual user:
 
-    * A @transformers@-style implementation of 'MonadError' that only uses the
-      'MonadTrans' type-class
+    * A type-class free alternative to @MonadError@
 
     * No @UndecidableInstances@ or any other extensions, for that matter
 

@@ -10,7 +10,11 @@ Maintainer: Gabriel439@gmail.com
 Stability: Experimental
 Bug-Reports: https://github.com/Gabriel439/Haskell-Error-Library/issues
 Synopsis: Simplified error-handling
-Description: The one-stop shop for all error-handling needs
+Description:
+    The one-stop shop for all your type-safe error-handling needs
+    .
+    This library encourages an error-handling style that directly uses the type
+    system, rather than out-of-band exceptions.
 Category: Control, Error Handling
 Tested-With: GHC ==7.4.1
 Source-Repository head
