@@ -1,5 +1,5 @@
 Name: errors
-Version: 1.0.0
+Version: 1.1.0
 Cabal-Version: >=1.14.0
 Build-Type: Simple
 License: BSD3
@@ -23,7 +23,7 @@ Source-Repository head
     Location: https://github.com/Gabriel439/Haskell-Errors-Library
 
 Library
-    Build-Depends: base >= 4 && < 5, EitherT, safe, transformers
+    Build-Depends: base >= 4 && < 5, either, safe, transformers
     Exposed-Modules:
         Control.Error,
         Control.Error.Script,

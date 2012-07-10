@@ -40,6 +40,7 @@ module Data.EitherR (
     right,
     succeedT,
     -- ** Conversions to the EitherT monad
+    left,
     throwT,
     catchT,
     handleT,
@@ -124,6 +125,10 @@ right = EitherRT . return
 -- | Complete error handling, returning a result
 succeedT :: (Monad m) => r -> EitherRT r m e
 succeedT = right
+
+-- | Synonym for 'throwT'
+left :: (Monad m) => e -> EitherT e m r
+left = throwT
 
 -- | 'throwT' in the error monad corresponds to 'return' in the success monad
 throwT :: (Monad m) => e -> EitherT e m r
