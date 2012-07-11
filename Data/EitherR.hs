@@ -128,7 +128,7 @@ succeedT = right
 
 -- | Synonym for 'throwT'
 left :: (Monad m) => e -> EitherT e m r
-left = throwT
+left = EitherT . return . Left
 
 -- | 'throwT' in the error monad corresponds to 'return' in the success monad
 throwT :: (Monad m) => e -> EitherT e m r
