@@ -23,7 +23,7 @@ module Control.Error (
 import Control.Error.Script
 import Control.Error.Safe
 import Control.Error.Util
-import Control.Monad.Trans.Either
+import Control.Monad.Trans.Either hiding (right)
 import Control.Monad.Trans.Maybe
 import Data.Either
 import Data.EitherR

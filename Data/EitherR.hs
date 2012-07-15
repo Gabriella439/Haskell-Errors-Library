@@ -50,7 +50,7 @@ module Data.EitherR (
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.Either
+import Control.Monad.Trans.Either hiding (right)
 
 {-|
     If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
@@ -125,10 +125,6 @@ right = EitherRT . return
 -- | Complete error handling, returning a result
 succeedT :: (Monad m) => r -> EitherRT r m e
 succeedT = right
-
--- | Synonym for 'throwT'
-left :: (Monad m) => e -> EitherT e m r
-left = EitherT . return . Left
 
 -- | 'throwT' in the error monad corresponds to 'return' in the success monad
 throwT :: (Monad m) => e -> EitherT e m r
