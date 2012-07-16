@@ -37,10 +37,8 @@ module Data.EitherR (
     -- * EitherRT
     EitherRT(..),
     -- ** Operations in the EitherRT monad
-    right,
     succeedT,
     -- ** Conversions to the EitherT monad
-    left,
     throwT,
     catchT,
     handleT,
@@ -113,22 +111,14 @@ instance (Monad m) => Monad (EitherRT r m) where
         x <- runEitherT $ runEitherRT m
         runEitherT $ runEitherRT $ case x of
             Left  e -> f e
-            Right r -> right r
+            Right r -> succeedT r
 
 instance MonadTrans (EitherRT r) where
     lift = EitherRT . EitherT . liftM Left
 
--- | The dual to 'left' and synonymous with 'succeedT'
-right :: (Monad m) => r -> EitherRT r m e
-right = EitherRT . return
-
 -- | Complete error handling, returning a result
 succeedT :: (Monad m) => r -> EitherRT r m e
-succeedT = right
-
--- | Synonym for 'throwT'
-left :: (Monad m) => e -> EitherT e m r
-left = EitherT . return . Left
+succeedT = EitherRT . return
 
 -- | 'throwT' in the error monad corresponds to 'return' in the success monad
 throwT :: (Monad m) => e -> EitherT e m r
