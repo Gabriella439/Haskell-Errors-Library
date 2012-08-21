@@ -11,12 +11,19 @@ module Control.Error.Util (
     -- * Either functions
     -- $either
     isLeft,
-    isRight
+    isRight,
+    fmapR,
+    -- * EitherT functions
+    -- $eitherT
+    fmapRT
     ) where
 
-import Control.Monad
-import Control.Monad.Trans.Either
-import Control.Monad.Trans.Maybe
+import Control.Monad (liftM)
+import Control.Monad.Trans.Either (EitherT(..))
+import Control.Monad.Trans.Maybe (MaybeT(..))
+
+-- For Documentation
+import Data.EitherR (fmapL, fmapLT)
 
 {- $conversion
     Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
@@ -62,3 +69,14 @@ isRight :: Either a b -> Bool
 isRight e = case e of
     Left  _ -> False
     Right _ -> True
+
+-- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
+fmapR :: (a -> b) -> Either l a -> Either l b
+fmapR = fmap
+
+{- $eitherT
+    Utility functions for 'EitherT'
+-}
+-- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
+fmapRT :: (Functor m) => (a -> b) -> EitherT l m a -> EitherT l m b
+fmapRT = fmap
