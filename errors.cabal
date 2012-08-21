@@ -1,6 +1,6 @@
 Name: errors
 Version: 1.2.1
-Cabal-Version: >=1.14.0
+Cabal-Version: >=1.8.0.2
 Build-Type: Simple
 License: BSD3
 License-File: LICENSE
