@@ -12,7 +12,7 @@
 -}
 
 module Control.Error.Safe (
-    -- * Either-compatible functions
+    -- * 'Either'-compatible functions
     tailErr,
     initErr,
     headErr,
@@ -25,7 +25,7 @@ module Control.Error.Safe (
     atErr,
     readErr,
     assertErr,
-    -- * EitherT-compatible functions
+    -- * 'EitherT'-compatible functions
     tryTail,
     tryInit,
     tryHead,
