@@ -23,6 +23,10 @@
 >     when bool $ lift $ putStrLn "DEBUG: Arithmetic handler did something"
 
     If any of the above error handlers 'succeed', no other handlers are tried.
+
+    If you choose not to typefully distinguish between the error and sucess
+    monad, then use 'flipE' and 'flipET', which swap the type variables without
+    changing the type.
 -}
 
 module Data.EitherR (
@@ -35,6 +39,8 @@ module Data.EitherR (
     catchE,
     handleE,
     fmapL,
+    -- ** Flip alternative
+    flipE,
     -- * EitherRT
     EitherRT(..),
     -- ** Operations in the EitherRT monad
@@ -43,7 +49,9 @@ module Data.EitherR (
     throwT,
     catchT,
     handleT,
-    fmapLT
+    fmapLT,
+    -- ** Flip alternative
+    flipET,
     ) where
 
 import Control.Applicative
@@ -96,6 +104,12 @@ handleE = flip catchE
 fmapL :: (a -> b) -> Either a r -> Either b r
 fmapL f = runEitherR . fmap f . EitherR
 
+-- | Flip the type variables of 'Either'
+flipE :: Either a b -> Either b a
+flipE e = case e of
+    Left  a -> Right a
+    Right b -> Left  b
+
 -- | 'EitherR' converted into a monad transformer
 newtype EitherRT r m e = EitherRT { runEitherRT :: EitherT e m r }
 
@@ -136,3 +150,7 @@ handleT = flip catchT
 -- | Map a function over the 'Left' value of an 'EitherT'
 fmapLT :: (Monad m) => (a -> b) -> EitherT a m r -> EitherT b m r
 fmapLT f = runEitherRT . fmap f . EitherRT
+
+-- | Flip the type variables of an 'EitherT'
+flipET :: (Monad m) => EitherT a m b -> EitherT b m a
+flipET = EitherT . liftM flipE . runEitherT
