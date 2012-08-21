@@ -1,14 +1,25 @@
-{-|
-    Use this module to convert between 'Maybe', 'Either', 'MaybeT', and
-    'EitherT'.
--}
+-- | This module exports miscellaneous error-handling functions.
 
-module Control.Error.Util where
+module Control.Error.Util (
+    -- * Conversion functions
+    -- $conversion
+    hush,
+    hushT,
+    note,
+    noteT,
+    hoistMaybe,
+    ) where
 
 import Control.Monad
 import Control.Monad.Trans.Either
 import Control.Monad.Trans.Maybe
 
+{- $conversion
+    Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
+    'EitherT'.
+
+    Note that 'hoistEither' is provided by the @either@ package.
+-}
 -- | Suppress the 'Left' value of an 'Either'
 hush :: Either a b -> Maybe b
 hush e = case e of
@@ -30,9 +41,5 @@ noteT :: (Monad m) => a -> MaybeT m b -> EitherT a m b
 noteT a = EitherT . liftM (note a) . runMaybeT
 
 -- | Lift a 'Maybe' to the 'MaybeT' monad
-liftMaybe :: (Monad m) => Maybe b -> MaybeT m b
-liftMaybe = MaybeT . return
-
--- | Lift an 'Either' to the 'EitherT' monad
-liftEither :: (Monad m) => Either a b -> EitherT a m b
-liftEither = EitherT . return
+hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
+hoistMaybe = MaybeT . return

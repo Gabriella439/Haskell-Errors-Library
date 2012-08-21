@@ -94,48 +94,48 @@ assertErr e p a = if p then Right a else Left e
 
 -- | A 'tail' that fails in the 'EitherT' monad
 tryTail :: (Monad m) => e -> [a] -> EitherT e m [a]
-tryTail e xs = liftEither $ tailErr e xs
+tryTail e xs = hoistEither $ tailErr e xs
 
 -- | An 'init' that fails in the 'EitherT' monad
 tryInit :: (Monad m) => e -> [a] -> EitherT e m [a]
-tryInit e xs = liftEither $ initErr e xs
+tryInit e xs = hoistEither $ initErr e xs
 
 -- | A 'head' that fails in the 'EitherT' monad
 tryHead :: (Monad m) => e -> [a] -> EitherT e m a
-tryHead e xs = liftEither $ headErr e xs
+tryHead e xs = hoistEither $ headErr e xs
 
 -- | A 'last' that fails in the 'EitherT' monad
 tryLast :: (Monad m) => e -> [a] -> EitherT e m a
-tryLast e xs = liftEither $ lastErr e xs
+tryLast e xs = hoistEither $ lastErr e xs
 
 -- | A 'minimum' that fails in the 'EitherT' monad
 tryMinimum :: (Monad m, Ord a) => e -> [a] -> EitherT e m a
-tryMinimum e xs = liftEither $ maximumErr e xs
+tryMinimum e xs = hoistEither $ maximumErr e xs
 
 -- | A 'maximum' that fails in the 'EitherT' monad
 tryMaximum :: (Monad m, Ord a) => e -> [a] -> EitherT e m a
-tryMaximum e xs = liftEither $ maximumErr e xs
+tryMaximum e xs = hoistEither $ maximumErr e xs
 
 -- | A 'foldr1' that fails in the 'EitherT' monad
 tryFoldr1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
-tryFoldr1 e step xs = liftEither $ foldr1Err e step xs
+tryFoldr1 e step xs = hoistEither $ foldr1Err e step xs
 
 -- | A 'foldl1' that fails in the 'EitherT' monad
 tryFoldl1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
-tryFoldl1 e step xs = liftEither $ foldl1Err e step xs
+tryFoldl1 e step xs = hoistEither $ foldl1Err e step xs
 
 -- | A 'foldl1'' that fails in the 'EitherT' monad
 tryFoldl1' :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
-tryFoldl1' e step xs = liftEither $ foldl1Err' e step xs
+tryFoldl1' e step xs = hoistEither $ foldl1Err' e step xs
 
 -- | A ('!!') that fails in the 'EitherT' monad
 tryAt :: (Monad m) => e -> [a] -> Int -> EitherT e m a
-tryAt e xs n = liftEither $ atErr e xs n
+tryAt e xs n = hoistEither $ atErr e xs n
 
 -- | A 'read' that fails in the 'EitherT' monad
 tryRead :: (Monad m, Read a) => e -> String -> EitherT e m a
-tryRead e str = liftEither $ readErr e str
+tryRead e str = hoistEither $ readErr e str
 
 -- | An assertion that fails in the 'EitherT' monad
 tryAssert :: (Monad m) => e -> Bool -> a -> EitherT e m a
-tryAssert e p a = liftEither $ assertErr e p a
+tryAssert e p a = hoistEither $ assertErr e p a

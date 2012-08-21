@@ -49,7 +49,7 @@ tryMaybe str = tryEither . note str
 
 -- | An 'Either' that fails in the 'Script' monad
 tryEither :: Either String r -> Script r
-tryEither = liftEither
+tryEither = hoistEither
 
 -- | 'tryIO' is like 'lift', except it converts exceptions to the 'Script' monad
 tryIO :: IO a -> Script a
