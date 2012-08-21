@@ -26,6 +26,7 @@
 -}
 
 module Data.EitherR (
+    -- * EitherR
     EitherR(..),
     -- ** Operations in the EitherR monad
     succeed,
