@@ -6,6 +6,8 @@
 
     This module exports the entire library as well as useful exports from other
     standard error-handling libraries.
+
+    This module does not re-export partial functions from other libraries.
 -}
 
 module Control.Error (
@@ -27,5 +29,24 @@ import Control.Monad.Trans.Either
 import Control.Monad.Trans.Maybe
 import Data.Either
 import Data.EitherR
-import Data.Maybe
-import Safe
+import Data.Maybe hiding (fromJust)
+import Safe hiding (
+    tailNote,
+    initNote,
+    headNote,
+    lastNote,
+    minimumNote,
+    maximumNote,
+    foldr1Note,
+    foldl1Note,
+    foldl1Note',
+    fromJustNote,
+    assertNote,
+    at,
+    atNote,
+    readNote,
+    lookupJust,
+    lookupJustNote,
+    findJust,
+    findJustNote,
+    abort)
