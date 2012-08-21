@@ -8,6 +8,10 @@ module Control.Error.Util (
     note,
     noteT,
     hoistMaybe,
+    -- * Either functions
+    -- $either
+    isLeft,
+    isRight
     ) where
 
 import Control.Monad
@@ -43,3 +47,18 @@ noteT a = EitherT . liftM (note a) . runMaybeT
 -- | Lift a 'Maybe' to the 'MaybeT' monad
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
+
+{- $either
+    Utility functions for 'Either'
+-}
+-- | Returns whether argument is a 'Left'
+isLeft :: Either a b -> Bool
+isLeft e = case e of
+    Left  _ -> True
+    Right _ -> False
+
+-- | Returns whether argument is a 'Right'
+isRight :: Either a b -> Bool
+isRight e = case e of
+    Left  _ -> False
+    Right _ -> True
