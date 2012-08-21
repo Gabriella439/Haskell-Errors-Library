@@ -38,9 +38,23 @@ module Control.Error.Safe (
     tryAt,
     tryRead,
     tryAssert,
+    -- * 'MonadPlus'-compatible functions
+    tailZ,
+    initZ,
+    headZ,
+    lastZ,
+    minimumZ,
+    maximumZ,
+    foldr1Z,
+    foldl1Z,
+    foldl1Z',
+    atZ,
+    readZ,
+    assertZ
     ) where
 
 import Control.Error.Util
+import Control.Monad
 import Control.Monad.Trans.Either
 import Safe
 
@@ -89,8 +103,8 @@ readErr :: (Read a) => e -> String -> Either e a
 readErr e = note e . readMay
 
 -- | An assertion that fails in the 'Either' monad
-assertErr :: e -> Bool -> a -> Either e a
-assertErr e p a = if p then Right a else Left e
+assertErr :: e -> Bool -> Either e ()
+assertErr e p = if p then Right () else Left e
 
 -- | A 'tail' that fails in the 'EitherT' monad
 tryTail :: (Monad m) => e -> [a] -> EitherT e m [a]
@@ -137,5 +151,53 @@ tryRead :: (Monad m, Read a) => e -> String -> EitherT e m a
 tryRead e str = hoistEither $ readErr e str
 
 -- | An assertion that fails in the 'EitherT' monad
-tryAssert :: (Monad m) => e -> Bool -> a -> EitherT e m a
-tryAssert e p a = hoistEither $ assertErr e p a
+tryAssert :: (Monad m) => e -> Bool -> EitherT e m ()
+tryAssert e p = hoistEither $ assertErr e p
+
+-- | A 'tail' that fails using 'mzero'
+tailZ :: (MonadPlus m) => [a] -> m [a]
+tailZ = maybe mzero return . tailMay
+
+-- | An 'init' that fails using 'mzero'
+initZ :: (MonadPlus m) => [a] -> m [a]
+initZ = maybe mzero return . initMay
+
+-- | A 'head' that fails using 'mzero'
+headZ :: (MonadPlus m) => [a] -> m a
+headZ = maybe mzero return . headMay
+
+-- | A 'last' that fails using 'mzero'
+lastZ :: (MonadPlus m) => [a] -> m a
+lastZ = maybe mzero return . lastMay
+
+-- | A 'minimum' that fails using 'mzero'
+minimumZ :: (MonadPlus m) => (Ord a) => [a] -> m a
+minimumZ = maybe mzero return . minimumMay
+
+-- | A 'maximum' that fails using 'mzero'
+maximumZ :: (MonadPlus m) => (Ord a) => [a] -> m a
+maximumZ = maybe mzero return . maximumMay
+
+-- | A 'foldr1' that fails using 'mzero'
+foldr1Z :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
+foldr1Z step xs = maybe mzero return $ foldr1May step xs
+
+-- | A 'foldl1' that fails using 'mzero'
+foldl1Z :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
+foldl1Z step xs = maybe mzero return $ foldl1May step xs
+
+-- | A 'foldl1'' that fails using 'mzero'
+foldl1Z' :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
+foldl1Z' step xs = maybe mzero return $ foldl1May' step xs
+
+-- | A ('!!') that fails in using 'mzero'
+atZ :: (MonadPlus m) => [a] -> Int -> m a
+atZ xs n = maybe mzero return $ atMay xs n
+
+-- | A 'read' that fails in using 'mzero'
+readZ :: (MonadPlus m) => (Read a) => String -> m a
+readZ = maybe mzero return . readMay
+
+-- | An assertion that fails using 'mzero'
+assertZ :: (MonadPlus m) => Bool -> m ()
+assertZ p = if p then return () else mzero
