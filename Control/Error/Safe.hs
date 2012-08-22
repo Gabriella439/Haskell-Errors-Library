@@ -1,6 +1,7 @@
 {-|
     This module extends the @safe@ library's functions with corresponding
-    versions compatible with 'Either' and 'EitherT'.
+    versions compatible with 'Either' and 'EitherT', and also provides several
+    'Maybe'-compatible functions missing from @safe@.
 
     All functions take an exceptional value to return should they fail.
 
@@ -12,6 +13,9 @@
 -}
 
 module Control.Error.Safe (
+    -- * 'Maybe'-compatible functions
+    assertMay,
+    rightMay,
     -- * 'Either'-compatible functions
     tailErr,
     initErr,
@@ -25,6 +29,7 @@ module Control.Error.Safe (
     atErr,
     readErr,
     assertErr,
+    justErr,
     -- * 'EitherT'-compatible functions
     tryTail,
     tryInit,
@@ -38,6 +43,8 @@ module Control.Error.Safe (
     tryAt,
     tryRead,
     tryAssert,
+    tryJust,
+    tryRight,
     -- * 'MonadPlus'-compatible functions
     tailZ,
     initZ,
@@ -50,13 +57,23 @@ module Control.Error.Safe (
     foldl1Z',
     atZ,
     readZ,
-    assertZ
+    assertZ,
+    justZ,
+    rightZ
     ) where
 
 import Control.Error.Util
 import Control.Monad
 import Control.Monad.Trans.Either
 import Safe
+
+-- | An assertion that fails in the 'Maybe' monad
+assertMay :: Bool -> Maybe ()
+assertMay = assertZ
+
+-- | A 'fromRight' that fails in the 'Maybe' monad
+rightMay :: Either e a -> Maybe a
+rightMay = either (\_ -> Nothing) Just
 
 -- | A 'tail' that fails in the 'Either' monad
 tailErr :: e -> [a] -> Either e [a]
@@ -106,6 +123,10 @@ readErr e = note e . readMay
 assertErr :: e -> Bool -> Either e ()
 assertErr e p = if p then Right () else Left e
 
+-- | A 'fromJust' that fails in the 'Either' monad
+justErr :: e -> Maybe a -> Either e a
+justErr e = maybe (Left e) Right
+
 -- | A 'tail' that fails in the 'EitherT' monad
 tryTail :: (Monad m) => e -> [a] -> EitherT e m [a]
 tryTail e xs = hoistEither $ tailErr e xs
@@ -154,6 +175,14 @@ tryRead e str = hoistEither $ readErr e str
 tryAssert :: (Monad m) => e -> Bool -> EitherT e m ()
 tryAssert e p = hoistEither $ assertErr e p
 
+-- | A 'fromJust' that fails in the 'EitherT' monad
+tryJust :: (Monad m) => e -> Maybe a -> EitherT e m a
+tryJust e m = hoistEither $ justErr e m
+
+-- | A 'fromRight' that fails in the 'EitherT' monad
+tryRight :: (Monad m) => Either e a -> EitherT e m a
+tryRight = hoistEither
+
 -- | A 'tail' that fails using 'mzero'
 tailZ :: (MonadPlus m) => [a] -> m [a]
 tailZ = maybe mzero return . tailMay
@@ -190,14 +219,22 @@ foldl1Z step xs = maybe mzero return $ foldl1May step xs
 foldl1Z' :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
 foldl1Z' step xs = maybe mzero return $ foldl1May' step xs
 
--- | A ('!!') that fails in using 'mzero'
+-- | A ('!!') that fails using 'mzero'
 atZ :: (MonadPlus m) => [a] -> Int -> m a
 atZ xs n = maybe mzero return $ atMay xs n
 
--- | A 'read' that fails in using 'mzero'
+-- | A 'read' that fails using 'mzero'
 readZ :: (MonadPlus m) => (Read a) => String -> m a
 readZ = maybe mzero return . readMay
 
 -- | An assertion that fails using 'mzero'
 assertZ :: (MonadPlus m) => Bool -> m ()
 assertZ p = if p then return () else mzero
+
+-- | A 'fromJust' that fails using 'mzero'
+justZ :: (MonadPlus m) => Maybe a -> m a
+justZ = maybe mzero return
+
+-- | A 'fromRight' that fails using 'mzero'
+rightZ :: (MonadPlus m) => Either e a -> m a
+rightZ = either (\_ -> mzero) return

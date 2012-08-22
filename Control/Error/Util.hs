@@ -33,9 +33,7 @@ import Data.EitherR (fmapL, fmapLT)
 -}
 -- | Suppress the 'Left' value of an 'Either'
 hush :: Either a b -> Maybe b
-hush e = case e of
-    Left  _ -> Nothing
-    Right b -> Just b
+hush = either (\_ -> Nothing) Just
 
 -- | Suppress the 'Left' value of an 'EitherT'
 hushT :: (Monad m) => EitherT a m b -> MaybeT m b
@@ -43,9 +41,7 @@ hushT = MaybeT . liftM hush . runEitherT
 
 -- | Tag the 'Nothing' value of a 'Maybe'
 note :: a -> Maybe b -> Either a b
-note a m = case m of
-    Nothing -> Left  a
-    Just b  -> Right b
+note a = maybe (Left a) Right
 
 -- | Tag the 'Nothing' value of a 'MaybeT'
 noteT :: (Monad m) => a -> MaybeT m b -> EitherT a m b
@@ -60,15 +56,11 @@ hoistMaybe = MaybeT . return
 -}
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
-isLeft e = case e of
-    Left  _ -> True
-    Right _ -> False
+isLeft = either (\_ -> True) (\_ -> False)
 
 -- | Returns whether argument is a 'Right'
 isRight :: Either a b -> Bool
-isRight e = case e of
-    Left  _ -> False
-    Right _ -> True
+isRight = either (\_ -> False) (\_ -> True)
 
 -- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
 fmapR :: (a -> b) -> Either l a -> Either l b
