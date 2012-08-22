@@ -13,10 +13,10 @@
 -}
 
 module Control.Error.Safe (
-    -- * 'Maybe'-compatible functions
+    -- * Maybe-compatible functions
     assertMay,
     rightMay,
-    -- * 'Either'-compatible functions
+    -- * Either-compatible functions
     tailErr,
     initErr,
     headErr,
@@ -30,7 +30,7 @@ module Control.Error.Safe (
     readErr,
     assertErr,
     justErr,
-    -- * 'EitherT'-compatible functions
+    -- * EitherT-compatible functions
     tryTail,
     tryInit,
     tryHead,
@@ -45,7 +45,7 @@ module Control.Error.Safe (
     tryAssert,
     tryJust,
     tryRight,
-    -- * 'MonadPlus'-compatible functions
+    -- * MonadPlus-compatible functions
     tailZ,
     initZ,
     headZ,

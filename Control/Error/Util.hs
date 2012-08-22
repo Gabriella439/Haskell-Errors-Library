@@ -8,12 +8,12 @@ module Control.Error.Util (
     note,
     noteT,
     hoistMaybe,
-    -- * 'Either' functions
+    -- * Either functions
     -- $either
     isLeft,
     isRight,
     fmapR,
-    -- * 'EitherT' functions
+    -- * EitherT functions
     -- $eitherT
     fmapRT
     ) where

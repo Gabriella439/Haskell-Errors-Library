@@ -14,8 +14,6 @@ module Control.Error.Script (
     -- * The Script Monad
     Script,
     runScript,
-    tryMaybe,
-    tryEither,
     tryIO
     ) where
 
@@ -42,14 +40,6 @@ runScript s = do
             hPutStrLn stderr e
             exitFailure
         Right a -> return a
-
--- | A 'Maybe' that fails in the 'Script' monad
-tryMaybe :: String -> Maybe a -> Script a
-tryMaybe str = tryEither . note str
-
--- | An 'Either' that fails in the 'Script' monad
-tryEither :: Either String r -> Script r
-tryEither = hoistEither
 
 -- | 'tryIO' is like 'lift', except it converts exceptions to the 'Script' monad
 tryIO :: IO a -> Script a
