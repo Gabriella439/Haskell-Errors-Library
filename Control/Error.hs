@@ -11,8 +11,8 @@
 -}
 
 module Control.Error (
-    module Control.Error.Script,
     module Control.Error.Safe,
+    module Control.Error.Script,
     module Control.Error.Util,
     module Control.Monad.Trans.Either,
     module Control.Monad.Trans.Maybe,
@@ -22,8 +22,8 @@ module Control.Error (
     module Safe
     ) where
 
-import Control.Error.Script
 import Control.Error.Safe
+import Control.Error.Script
 import Control.Error.Util
 import Control.Monad.Trans.Either
 import Control.Monad.Trans.Maybe

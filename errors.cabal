@@ -1,6 +1,6 @@
 Name: errors
 Version: 1.2.1
-Cabal-Version: >=1.8.0.2
+Cabal-Version: >=1.10.1.0
 Build-Type: Simple
 License: BSD3
 License-File: LICENSE
@@ -26,9 +26,9 @@ Library
     Build-Depends: base >= 4 && < 5, either >= 3.0.1, safe, transformers
     Exposed-Modules:
         Control.Error,
+        Control.Error.Safe,
         Control.Error.Script,
         Control.Error.Util,
-        Control.Error.Safe,
         Data.EitherR
     GHC-Options: -O2
     Default-Language: Haskell2010

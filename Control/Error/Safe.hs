@@ -62,9 +62,9 @@ module Control.Error.Safe (
     rightZ
     ) where
 
-import Control.Error.Util
-import Control.Monad
-import Control.Monad.Trans.Either
+import Control.Error.Util (note)
+import Control.Monad (MonadPlus(mzero))
+import Control.Monad.Trans.Either (EitherT, hoistEither)
 import Safe
 
 -- | An assertion that fails in the 'Maybe' monad

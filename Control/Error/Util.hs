@@ -1,26 +1,32 @@
 -- | This module exports miscellaneous error-handling functions.
 
 module Control.Error.Util (
-    -- * Conversion functions
+    -- * Conversion
     -- $conversion
     hush,
     hushT,
     note,
     noteT,
     hoistMaybe,
-    -- * Either functions
-    -- $either
+    -- * Either
     isLeft,
     isRight,
     fmapR,
-    -- * EitherT functions
-    -- $eitherT
-    fmapRT
+    -- * EitherT
+    fmapRT,
+    -- * Error Reporting
+    err,
+    errLn,
+    -- * Exceptions
+    tryIO
     ) where
 
+import Control.Exception (try, IOException)
 import Control.Monad (liftM)
-import Control.Monad.Trans.Either (EitherT(..))
-import Control.Monad.Trans.Maybe (MaybeT(..))
+import Control.Monad.IO.Class (MonadIO(liftIO))
+import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
+import Control.Monad.Trans.Maybe (MaybeT(MaybeT, runMaybeT))
+import System.IO (hPutStr, hPutStrLn, stderr)
 
 -- For Documentation
 import Data.EitherR (fmapL, fmapLT)
@@ -51,9 +57,6 @@ noteT a = EitherT . liftM (note a) . runMaybeT
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
 
-{- $either
-    Utility functions for 'Either'
--}
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
 isLeft = either (\_ -> True) (\_ -> False)
@@ -66,9 +69,18 @@ isRight = either (\_ -> False) (\_ -> True)
 fmapR :: (a -> b) -> Either l a -> Either l b
 fmapR = fmap
 
-{- $eitherT
-    Utility functions for 'EitherT'
--}
 -- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
 fmapRT :: (Functor m) => (a -> b) -> EitherT l m a -> EitherT l m b
 fmapRT = fmap
+
+-- | Write a string to standard error
+err :: String -> IO ()
+err = hPutStr stderr
+
+-- | Write a string with a newline to standard error
+errLn :: String -> IO ()
+errLn = hPutStrLn stderr
+
+-- | Catch 'IOException's and convert them to the 'EitherT' monad
+tryIO :: (MonadIO m) => IO a -> EitherT IOException m a
+tryIO = EitherT . liftIO . try
