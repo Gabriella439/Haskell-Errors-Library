@@ -73,7 +73,7 @@ assertMay = assertZ
 
 -- | A 'fromRight' that fails in the 'Maybe' monad
 rightMay :: Either e a -> Maybe a
-rightMay = either (\_ -> Nothing) Just
+rightMay = either (const Nothing) Just
 
 -- | A 'tail' that fails in the 'Either' monad
 tailErr :: e -> [a] -> Either e [a]
@@ -237,4 +237,4 @@ justZ = maybe mzero return
 
 -- | A 'fromRight' that fails using 'mzero'
 rightZ :: (MonadPlus m) => Either e a -> m a
-rightZ = either (\_ -> mzero) return
+rightZ = either (const mzero) return

@@ -39,7 +39,7 @@ import Data.EitherR (fmapL, fmapLT)
 -}
 -- | Suppress the 'Left' value of an 'Either'
 hush :: Either a b -> Maybe b
-hush = either (\_ -> Nothing) Just
+hush = either (const Nothing) Just
 
 -- | Suppress the 'Left' value of an 'EitherT'
 hushT :: (Monad m) => EitherT a m b -> MaybeT m b
@@ -59,11 +59,11 @@ hoistMaybe = MaybeT . return
 
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
-isLeft = either (\_ -> True) (\_ -> False)
+isLeft = either (const True) (const False)
 
 -- | Returns whether argument is a 'Right'
 isRight :: Either a b -> Bool
-isRight = either (\_ -> False) (\_ -> True)
+isRight = either (const False) (const True)
 
 -- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
 fmapR :: (a -> b) -> Either l a -> Either l b
