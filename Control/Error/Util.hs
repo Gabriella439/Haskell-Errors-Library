@@ -8,6 +8,8 @@ module Control.Error.Util (
     note,
     noteT,
     hoistMaybe,
+    -- * MaybeT
+    maybeT,
     -- * Either
     isLeft,
     isRight,
@@ -56,6 +58,12 @@ noteT a = EitherT . liftM (note a) . runMaybeT
 -- | Lift a 'Maybe' to the 'MaybeT' monad
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
+
+-- | Case analisys for 'MaybeT'. Evaluates to the first parameter if the
+-- 'MaybeT' computation fails, otherwise it applies the given action to the
+-- result of the succeding computation.
+maybeT :: Monad m => m b -> (a -> m b) -> MaybeT m a -> m b
+maybeT mb kb (MaybeT ma) = ma >>= maybe mb kb
 
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
