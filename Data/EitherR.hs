@@ -57,6 +57,7 @@ module Data.EitherR (
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Trans.Class
+import Control.Monad.IO.Class
 import Control.Monad.Trans.Either
 
 {-|
@@ -130,6 +131,9 @@ instance (Monad m) => Monad (EitherRT r m) where
 
 instance MonadTrans (EitherRT r) where
     lift = EitherRT . EitherT . liftM Left
+
+instance (MonadIO m) => MonadIO (EitherRT r m) where
+    liftIO = lift . liftIO
 
 -- | Complete error handling, returning a result
 succeedT :: (Monad m) => r -> EitherRT r m e
