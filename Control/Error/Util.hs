@@ -59,9 +59,11 @@ noteT a = EitherT . liftM (note a) . runMaybeT
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
 
--- | Case analisys for 'MaybeT'. Evaluates to the first parameter if the
--- 'MaybeT' computation fails, otherwise it applies the given action to the
--- result of the succeding computation.
+{-| Case analysis for 'MaybeT'
+
+    Use the first argument if the 'MaybeT' computation fails, otherwise apply
+    the function to the successful result.
+-}
 maybeT :: Monad m => m b -> (a -> m b) -> MaybeT m a -> m b
 maybeT mb kb (MaybeT ma) = ma >>= maybe mb kb
 
