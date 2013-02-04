@@ -80,7 +80,7 @@ fmapR :: (a -> b) -> Either l a -> Either l b
 fmapR = fmap
 
 -- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
-fmapRT :: (Functor m) => (a -> b) -> EitherT l m a -> EitherT l m b
+fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
 fmapRT = fmap
 
 -- | Write a string to standard error
