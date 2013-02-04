@@ -9,7 +9,7 @@
     Note that this library re-exports the 'Maybe' compatible functions from
     @safe@ in the "Control.Error" module, so they are not provided here.
 
-    The \'@Z@\'-suffixed functions generalize the 'Maybe' functions to work
+    The \'@Z@\'-suffixed functions generalize the 'Maybe' functions to also work
     with anything that implements 'MonadPlus', including:
 
     * Lists
