@@ -54,11 +54,12 @@ module Data.EitherR (
     flipET,
     ) where
 
-import Control.Applicative
-import Control.Monad
-import Control.Monad.Trans.Class
-import Control.Monad.IO.Class
-import Control.Monad.Trans.Either
+import Control.Applicative (Applicative(pure, (<*>)), Alternative(empty, (<|>)))
+import Control.Monad (liftM, ap, MonadPlus(mzero, mplus))
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Control.Monad.IO.Class (MonadIO(liftIO))
+import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT), left, right)
+import Data.Monoid (Monoid(mempty, mappend))
 
 {-|
     If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
@@ -84,6 +85,17 @@ instance Monad (EitherR r) where
     (EitherR m) >>= f = EitherR $ case m of
         Left  e -> runEitherR (f e)
         Right r -> Right r
+
+instance (Monoid r) => Alternative (EitherR r) where
+    empty = succeed mempty
+    e1@(EitherR (Left _)) <|> _ = e1
+    _ <|> e2@(EitherR (Left _)) = e2
+    (EitherR (Right r1)) <|> (EitherR (Right r2))
+        = EitherR (Right (mappend r1 r2))
+
+instance (Monoid r) => MonadPlus (EitherR r) where
+    mzero = empty
+    mplus = (<|>)
 
 -- | Complete error handling, returning a result
 succeed :: r -> EitherR r e
@@ -127,7 +139,23 @@ instance (Monad m) => Monad (EitherRT r m) where
         x <- runEitherT $ runEitherRT m
         runEitherT $ runEitherRT $ case x of
             Left  e -> f e
-            Right r -> succeedT r
+            Right r -> EitherRT (right r)
+
+instance (Monad m, Monoid r) => Alternative (EitherRT r m) where
+    empty = succeedT mempty
+    e1 <|> e2 = EitherRT $ EitherT $ do
+        x1 <- runEitherT $ runEitherRT e1
+        case x1 of
+            Left  l  -> return (Left l)
+            Right r1 -> do
+                x2 <- runEitherT $ runEitherRT e2
+                case x2 of
+                    Left  l  -> return (Left l)
+                    Right r2 -> return (Right (mappend r1 r2))
+
+instance (Monad m, Monoid r) => MonadPlus (EitherRT r m) where
+    mzero = empty
+    mplus = (<|>)
 
 instance MonadTrans (EitherRT r) where
     lift = EitherRT . EitherT . liftM Left
