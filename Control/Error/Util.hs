@@ -81,7 +81,7 @@ fmapR = fmap
 
 -- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
 fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
-fmapRT = fmap
+fmapRT = liftM
 
 -- | Write a string to standard error
 err :: String -> IO ()
