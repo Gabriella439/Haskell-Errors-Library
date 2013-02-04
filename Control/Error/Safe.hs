@@ -1,15 +1,22 @@
 {-|
     This module extends the @safe@ library's functions with corresponding
-    versions compatible with 'Either' and 'EitherT', and also provides several
+    versions compatible with 'Either' and 'EitherT', and also provides a few
     'Maybe'-compatible functions missing from @safe@.
-
-    All functions take an exceptional value to return should they fail.
 
     I suffix the 'Either'-compatible functions with @Err@ and prefix the
     'EitherT'-compatible functions with @try@.
 
     Note that this library re-exports the 'Maybe' compatible functions from
     @safe@ in the "Control.Error" module, so they are not provided here.
+
+    The \'@Z@\'-suffixed functions generalize the 'Maybe' functions to work
+    with anything that implements 'MonadPlus', including:
+
+    * Lists
+
+    * Most parsers
+
+    * 'EitherT' (if the left value is a 'Monoid')
 -}
 
 module Control.Error.Safe (
@@ -65,7 +72,7 @@ module Control.Error.Safe (
 import Control.Error.Util (note)
 import Control.Monad (MonadPlus(mzero))
 import Control.Monad.Trans.Either (EitherT, hoistEither)
-import Safe
+import qualified Safe as S
 
 -- | An assertion that fails in the 'Maybe' monad
 assertMay :: Bool -> Maybe ()
@@ -73,51 +80,51 @@ assertMay = assertZ
 
 -- | A 'fromRight' that fails in the 'Maybe' monad
 rightMay :: Either e a -> Maybe a
-rightMay = either (const Nothing) Just
+rightMay = rightZ
 
 -- | A 'tail' that fails in the 'Either' monad
 tailErr :: e -> [a] -> Either e [a]
-tailErr e = note e . tailMay
+tailErr e = note e . S.tailMay
 
 -- | An 'init' that fails in the 'Either' monad
 initErr :: e -> [a] -> Either e [a]
-initErr e = note e . initMay
+initErr e = note e . S.initMay
 
 -- | A 'head' that fails in the 'Either' monad
 headErr :: e -> [a] -> Either e a
-headErr e = note e . headMay
+headErr e = note e . S.headMay
 
 -- | A 'last' that fails in the 'Either' monad
 lastErr :: e -> [a] -> Either e a
-lastErr e = note e . lastMay
+lastErr e = note e . S.lastMay
 
 -- | A 'minimum' that fails in the 'Either' monad
 minimumErr :: (Ord a) => e -> [a] -> Either e a
-minimumErr e = note e . minimumMay
+minimumErr e = note e . S.minimumMay
 
 -- | A 'maximum' that fails in the 'Either' monad
 maximumErr :: (Ord a) => e -> [a] -> Either e a
-maximumErr e = note e . maximumMay
+maximumErr e = note e . S.maximumMay
 
 -- | A 'foldr1' that fails in the 'Either' monad
 foldr1Err :: e -> (a -> a -> a) -> [a] -> Either e a
-foldr1Err e step xs = note e $ foldr1May step xs
+foldr1Err e step xs = note e $ S.foldr1May step xs
 
 -- | A 'foldl1' that fails in the 'Either' monad
 foldl1Err :: e -> (a -> a -> a) -> [a] -> Either e a
-foldl1Err e step xs = note e $ foldl1May step xs
+foldl1Err e step xs = note e $ S.foldl1May step xs
 
 -- | A 'foldl1'' that fails in the 'Either' monad
 foldl1Err' :: e -> (a -> a -> a) -> [a] -> Either e a
-foldl1Err' e step xs = note e $ foldl1May' step xs
+foldl1Err' e step xs = note e $ S.foldl1May' step xs
 
 -- | A ('!!') that fails in the 'Either' monad
 atErr :: e -> [a] -> Int -> Either e a
-atErr e xs n = note e $ atMay xs n
+atErr e xs n = note e $ S.atMay xs n
 
 -- | A 'read' that fails in the 'Either' monad
 readErr :: (Read a) => e -> String -> Either e a
-readErr e = note e . readMay
+readErr e = note e . S.readMay
 
 -- | An assertion that fails in the 'Either' monad
 assertErr :: e -> Bool -> Either e ()
@@ -185,47 +192,47 @@ tryRight = hoistEither
 
 -- | A 'tail' that fails using 'mzero'
 tailZ :: (MonadPlus m) => [a] -> m [a]
-tailZ = maybe mzero return . tailMay
+tailZ = maybe mzero return . S.tailMay
 
 -- | An 'init' that fails using 'mzero'
 initZ :: (MonadPlus m) => [a] -> m [a]
-initZ = maybe mzero return . initMay
+initZ = maybe mzero return . S.initMay
 
 -- | A 'head' that fails using 'mzero'
 headZ :: (MonadPlus m) => [a] -> m a
-headZ = maybe mzero return . headMay
+headZ = maybe mzero return . S.headMay
 
 -- | A 'last' that fails using 'mzero'
 lastZ :: (MonadPlus m) => [a] -> m a
-lastZ = maybe mzero return . lastMay
+lastZ = maybe mzero return . S.lastMay
 
 -- | A 'minimum' that fails using 'mzero'
 minimumZ :: (MonadPlus m) => (Ord a) => [a] -> m a
-minimumZ = maybe mzero return . minimumMay
+minimumZ = maybe mzero return . S.minimumMay
 
 -- | A 'maximum' that fails using 'mzero'
 maximumZ :: (MonadPlus m) => (Ord a) => [a] -> m a
-maximumZ = maybe mzero return . maximumMay
+maximumZ = maybe mzero return . S.maximumMay
 
 -- | A 'foldr1' that fails using 'mzero'
 foldr1Z :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
-foldr1Z step xs = maybe mzero return $ foldr1May step xs
+foldr1Z step xs = maybe mzero return $ S.foldr1May step xs
 
 -- | A 'foldl1' that fails using 'mzero'
 foldl1Z :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
-foldl1Z step xs = maybe mzero return $ foldl1May step xs
+foldl1Z step xs = maybe mzero return $ S.foldl1May step xs
 
 -- | A 'foldl1'' that fails using 'mzero'
 foldl1Z' :: (MonadPlus m) => (a -> a -> a) -> [a] -> m a
-foldl1Z' step xs = maybe mzero return $ foldl1May' step xs
+foldl1Z' step xs = maybe mzero return $ S.foldl1May' step xs
 
 -- | A ('!!') that fails using 'mzero'
 atZ :: (MonadPlus m) => [a] -> Int -> m a
-atZ xs n = maybe mzero return $ atMay xs n
+atZ xs n = maybe mzero return $ S.atMay xs n
 
 -- | A 'read' that fails using 'mzero'
 readZ :: (MonadPlus m) => (Read a) => String -> m a
-readZ = maybe mzero return . readMay
+readZ = maybe mzero return . S.readMay
 
 -- | An assertion that fails using 'mzero'
 assertZ :: (MonadPlus m) => Bool -> m ()
