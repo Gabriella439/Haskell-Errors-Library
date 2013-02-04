@@ -1,24 +1,24 @@
 {-|
-    This modules provides newtypes which flip the type variables of 'Either'
-    and 'EitherT' to access the symmetric monad over the opposite type variable.
+    This module provides 'throwE' and 'catchE' for 'Either'.  These two
+    functions reside here because 'throwE' and 'catchE' correspond to 'return'
+    and ('>>=') for the flipped 'Either' monad: 'EitherR'.  Similarly, this
+    module defines 'throwT' and 'catchT' for 'EitherT', which correspond to the
+    'Monad' operations for 'EitherRT'.
 
-    This module provides the following simple benefits to the casual user:
+    These throw and catch functions improve upon @MonadError@ because:
 
-    * A type-class free alternative to @MonadError@
+    * 'catch' is more general and allows you to change the left value's type
 
-    * No @UndecidableInstances@ or any other extensions, for that matter
+    * They are Haskell98
 
-    * A more powerful 'catchE' statement that allows you to change the type of
-      error value returned
-
-    More advanced users can take advantage of the fact that 'EitherR' and
-    'EitherRT' define an entirely symmetric \"success monad\" where
-    error-handling computations are the default and successful results terminate
-    the monad.  This allows you to chain error-handlers and pass around values
-    other than exceptions until you can finally recover from the error:
+    More advanced users can use 'EitherR' and 'EitherRT' to program in an
+    entirely symmetric \"success monad\" where exceptional results are the norm
+    and successful results terminate the computation.  This allows you to chain
+    error-handlers using @do@ notation and pass around exceptional values of
+    varying types until you can finally recover from the error:
 
 > runEitherRT $ do
->     e2 <- ioExceptionHandler e1
+>     e2   <- ioExceptionHandler e1
 >     bool <- arithmeticExceptionhandler e2
 >     when bool $ lift $ putStrLn "DEBUG: Arithmetic handler did something"
 
@@ -61,8 +61,7 @@ import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT), left, right)
 import Data.Monoid (Monoid(mempty, mappend))
 
-{-|
-    If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
+{-| If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
     corresponding success monad, where:
 
     * 'return' is 'throwE'.
@@ -81,16 +80,16 @@ instance Applicative (EitherR r) where
     (<*>) = ap
 
 instance Monad (EitherR r) where
-    return = EitherR . Left
-    (EitherR m) >>= f = EitherR $ case m of
-        Left  e -> runEitherR (f e)
-        Right r -> Right r
+    return e = EitherR (Left e)
+    EitherR m >>= f = case m of
+        Left  e -> f e
+        Right r -> EitherR (Right r)
 
 instance (Monoid r) => Alternative (EitherR r) where
-    empty = succeed mempty
+    empty = EitherR (Right mempty)
     e1@(EitherR (Left _)) <|> _ = e1
     _ <|> e2@(EitherR (Left _)) = e2
-    (EitherR (Right r1)) <|> (EitherR (Right r2))
+    EitherR (Right r1) <|> EitherR (Right r2)
         = EitherR (Right (mappend r1 r2))
 
 instance (Monoid r) => MonadPlus (EitherR r) where
@@ -99,15 +98,15 @@ instance (Monoid r) => MonadPlus (EitherR r) where
 
 -- | Complete error handling, returning a result
 succeed :: r -> EitherR r e
-succeed = EitherR . return
+succeed r = EitherR (return r)
 
 -- | 'throwE' in the error monad corresponds to 'return' in the success monad
 throwE :: e -> Either e r
-throwE = runEitherR . return
+throwE e = runEitherR (return e)
 
 -- | 'catchE' in the error monad corresponds to ('>>=') in the success monad
 catchE :: Either a r -> (a -> Either b r) -> Either b r
-e `catchE` f = runEitherR $ (EitherR e) >>= (EitherR . f)
+e `catchE` f = runEitherR $ EitherR e >>= \a -> EitherR (f a)
 
 -- | 'catchE' with the arguments flipped
 handleE :: (a -> Either b r) -> Either a r -> Either b r
@@ -134,7 +133,7 @@ instance (Monad m) => Applicative (EitherRT r m) where
     (<*>) = ap
 
 instance (Monad m) => Monad (EitherRT r m) where
-    return = EitherRT . left
+    return e = EitherRT (left e)
     m >>= f = EitherRT $ EitherT $ do
         x <- runEitherT $ runEitherRT m
         runEitherT $ runEitherRT $ case x of
@@ -142,7 +141,7 @@ instance (Monad m) => Monad (EitherRT r m) where
             Right r -> EitherRT (right r)
 
 instance (Monad m, Monoid r) => Alternative (EitherRT r m) where
-    empty = succeedT mempty
+    empty = EitherRT $ EitherT $ return $ Right mempty
     e1 <|> e2 = EitherRT $ EitherT $ do
         x1 <- runEitherT $ runEitherRT e1
         case x1 of
@@ -165,15 +164,15 @@ instance (MonadIO m) => MonadIO (EitherRT r m) where
 
 -- | Complete error handling, returning a result
 succeedT :: (Monad m) => r -> EitherRT r m e
-succeedT = EitherRT . return
+succeedT r = EitherRT (return r)
 
 -- | 'throwT' in the error monad corresponds to 'return' in the success monad
 throwT :: (Monad m) => e -> EitherT e m r
-throwT = runEitherRT . return
+throwT e = runEitherRT (return e)
 
 -- | 'catchT' in the error monad corresponds to ('>>=') in the success monad
 catchT :: (Monad m) => EitherT a m r -> (a -> EitherT b m r) -> EitherT b m r
-e `catchT` f = runEitherRT $ (EitherRT e) >>= (EitherRT . f)
+e `catchT` f = runEitherRT $ EitherRT e >>= \a -> EitherRT (f a)
 
 -- | 'catchT' with the arguments flipped
 handleT :: (Monad m) => (a -> EitherT b m r) -> EitherT a m r -> EitherT b m r
