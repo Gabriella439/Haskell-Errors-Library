@@ -47,28 +47,44 @@ module Control.Error (
 import Control.Error.Safe
 import Control.Error.Script
 import Control.Error.Util
-import Control.Monad.Trans.Either
-import Control.Monad.Trans.Maybe
-import Data.Either
+import Control.Monad.Trans.Either (
+    eitherT, bimapEitherT, mapEitherT, hoistEither, left, right )
+import Control.Monad.Trans.Maybe (
+    mapMaybeT, liftCallCC, liftCatch, liftListen, liftPass )
+import Data.Either (either, lefts, rights, partitionEithers)
 import Data.EitherR
-import Data.Maybe hiding (fromJust)
-import Safe hiding (
-    tailNote,
-    initNote,
-    headNote,
-    lastNote,
-    minimumNote,
-    maximumNote,
-    foldr1Note,
-    foldl1Note,
-    foldl1Note',
-    fromJustNote,
-    assertNote,
-    at,
-    atNote,
-    readNote,
-    lookupJust,
-    lookupJustNote,
-    findJust,
-    findJustNote,
-    abort)
+import Data.Maybe (
+    maybe,
+    isJust,
+    isNothing,
+    fromMaybe,
+    listToMaybe,
+    maybeToList,
+    catMaybes,
+    mapMaybe )
+import Safe (
+    tailDef,
+    tailMay,
+    tailSafe,
+    initDef,
+    initMay,
+    initSafe,
+    headDef,
+    headMay,
+    lastDef,
+    lastMay,
+    minimumDef,
+    minimumMay,
+    maximumDef,
+    maximumMay,
+    foldr1Def,
+    foldr1May,
+    foldl1Def',
+    foldl1May',
+    fromJustDef,
+    atDef,
+    atMay,
+    readDef,
+    readMay,
+    lookupJustDef,
+    findJustDef )
