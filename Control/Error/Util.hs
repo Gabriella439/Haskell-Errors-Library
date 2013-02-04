@@ -10,6 +10,8 @@ module Control.Error.Util (
     hoistMaybe,
     -- * MaybeT
     maybeT,
+    just,
+    nothing,
     -- * Either
     isLeft,
     isRight,
@@ -66,6 +68,14 @@ hoistMaybe = MaybeT . return
 -}
 maybeT :: Monad m => m b -> (a -> m b) -> MaybeT m a -> m b
 maybeT mb kb (MaybeT ma) = ma >>= maybe mb kb
+
+-- | Analogous to 'Just' and equivalent to 'return'
+just :: (Monad m) => a -> MaybeT m a
+just a = MaybeT (return (Just a))
+
+-- | Analogous to 'Nothing' and equivalent to 'mzero'
+nothing :: (Monad m) => MaybeT m a
+nothing = MaybeT (return Nothing)
 
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
