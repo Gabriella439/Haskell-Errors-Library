@@ -33,6 +33,7 @@
 -}
 
 module Control.Error (
+    -- * Re-exports
     module Control.Error.Safe,
     module Control.Error.Script,
     module Control.Error.Util,

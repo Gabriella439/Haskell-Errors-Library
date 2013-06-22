@@ -25,7 +25,7 @@ module Control.Error.Util (
     errLn,
     -- * Exceptions
     tryIO,
-    attempt
+    syncIO 
     ) where
 
 import Control.Applicative
@@ -45,7 +45,7 @@ import Data.EitherR (fmapL, fmapLT)
     Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
     'EitherT'.
 
-    Note that 'hoistEither' is provided by the @either@ package.
+    Note that 'hoistEither' and 'eitherT' are provided by the @either@ package.
 -}
 -- | Suppress the 'Left' value of an 'Either'
 hush :: Either a b -> Maybe b
@@ -67,11 +67,11 @@ noteT a = EitherT . liftM (note a) . runMaybeT
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
 
--- | Convert a 'Maybe' value into the 'EitherT' monad.
+-- | Convert a 'Maybe' value into the 'EitherT' monad
 (??) :: Applicative m => Maybe a -> e -> EitherT e m a
 (??) a e = EitherT (pure $ note e a)
 
--- | Convert an applicative 'Maybe' value into the 'EitherT' monad.
+-- | Convert an applicative 'Maybe' value into the 'EitherT' monad
 (!?) :: Applicative m => m (Maybe a) -> e -> EitherT e m a
 (!?) a e = EitherT (note e <$> a)
 
@@ -119,47 +119,11 @@ errLn = hPutStrLn stderr
 tryIO :: (MonadIO m) => IO a -> EitherT IOException m a
 tryIO = EitherT . liftIO . try
 
--- | Execute the given IO action, catch all exceptions except:
---
---     * 'AsyncException'
---
---     * 'ArithException'
---
---     * 'ErrorCall'
---
---     * 'Dynamic'
---
---     * 'ExitCode'
---
---     * 'ArrayException'
---
---     * 'AsyncException'
---
---     * 'AssertionFailed'
---
---     * 'Deadlock'
---
---     * 'BlockedIndefinitelyOnSTM'
---
---     * 'BlockedIndefinitelyOnMVar'
---
---     * 'NestedAtomically'
---
---     * 'NonTermination'
---
---     * 'NoMethodError'
---
---     * 'RecUpdError'
---
---     * 'RecConError'
---
---     * 'RecSelError'
---
---     * 'PatternMatchFail'
---
--- and convert them to the 'EitherT' monad.
-attempt :: MonadIO m => IO a -> EitherT SomeException m a
-attempt a = EitherT . liftIO $ catches (Right <$> a)
+{-| Catch all exceptions, except for asynchronous exceptions from
+    @Control.Exception@, and convert them to the 'EitherT' monad
+-}
+syncIO :: MonadIO m => IO a -> EitherT SomeException m a
+syncIO a = EitherT . liftIO $ catches (Right <$> a)
     [ Handler $ \e -> throw (e :: ArithException)
     , Handler $ \e -> throw (e :: ArrayException)
     , Handler $ \e -> throw (e :: AssertionFailed)
