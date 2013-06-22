@@ -1,5 +1,4 @@
-{-|
-    This module provides 'throwE' and 'catchE' for 'Either'.  These two
+{-| This module provides 'throwE' and 'catchE' for 'Either'.  These two
     functions reside here because 'throwE' and 'catchE' correspond to 'return'
     and ('>>=') for the flipped 'Either' monad: 'EitherR'.  Similarly, this
     module defines 'throwT' and 'catchT' for 'EitherT', which correspond to the
@@ -32,24 +31,31 @@
 module Data.EitherR (
     -- * EitherR
     EitherR(..),
+
     -- ** Operations in the EitherR monad
     succeed,
+
     -- ** Conversions to the Either monad
     throwE,
     catchE,
     handleE,
     fmapL,
+
     -- ** Flip alternative
     flipE,
+
     -- * EitherRT
     EitherRT(..),
+
     -- ** Operations in the EitherRT monad
     succeedT,
+
     -- ** Conversions to the EitherT monad
     throwT,
     catchT,
     handleT,
     fmapLT,
+
     -- ** Flip alternative
     flipET,
     ) where
