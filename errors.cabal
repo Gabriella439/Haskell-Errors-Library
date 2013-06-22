@@ -16,17 +16,16 @@ Description:
     This library encourages an error-handling style that directly uses the type
     system, rather than out-of-band exceptions.
 Category: Control, Error Handling
-Tested-With: GHC ==7.4.1
 Source-Repository head
     Type: git
     Location: https://github.com/Gabriel439/Haskell-Errors-Library
 
 Library
     Build-Depends:
-        base >= 4 && < 5,
-        either >= 3.1 && < 3.5,
-        safe >= 0.3.3 && < 0.4,
-        transformers >= 0.2 && < 0.4
+        base         >= 4     && < 5  ,
+        either       >= 3.1   && < 3.5,
+        safe         >= 0.3.3 && < 0.4,
+        transformers >= 0.2   && < 0.4
     Exposed-Modules:
         Control.Error,
         Control.Error.Safe,
