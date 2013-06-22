@@ -1,5 +1,4 @@
-{-|
-    This module extends the @safe@ library's functions with corresponding
+{-| This module extends the @safe@ library's functions with corresponding
     versions compatible with 'Either' and 'EitherT', and also provides a few
     'Maybe'-compatible functions missing from @safe@.
 
@@ -23,6 +22,7 @@ module Control.Error.Safe (
     -- * Maybe-compatible functions
     assertMay,
     rightMay,
+
     -- * Either-compatible functions
     tailErr,
     initErr,
@@ -37,6 +37,7 @@ module Control.Error.Safe (
     readErr,
     assertErr,
     justErr,
+
     -- * EitherT-compatible functions
     tryTail,
     tryInit,
@@ -52,6 +53,7 @@ module Control.Error.Safe (
     tryAssert,
     tryJust,
     tryRight,
+
     -- * MonadPlus-compatible functions
     tailZ,
     initZ,

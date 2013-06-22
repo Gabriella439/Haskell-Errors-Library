@@ -1,5 +1,4 @@
-{-|
-    Import this module in your code to access the entire library's
+{-| Import this module in your code to access the entire library's
     functionality:
 
 > import Control.Error

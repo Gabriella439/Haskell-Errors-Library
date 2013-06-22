@@ -33,8 +33,7 @@ import System.IO (stderr)
 -- | An 'IO' action that can fail with a 'String' error message
 type Script = EitherT String IO
 
-{-|
-    Runs the 'Script' monad
+{-| Runs the 'Script' monad
 
     Prints the first error to 'stderr' and exits with 'exitFailure'
 -}
@@ -47,8 +46,7 @@ runScript s = do
             exitFailure
         Right a -> return a
 
-{-|
-    'scriptIO' resembles 'lift', except it catches all exceptions and converts
+{-| 'scriptIO' resembles 'lift', except it catches all exceptions and converts
     them to 'String's.
 
     Note that 'scriptIO' is compatible with the 'Script' monad.

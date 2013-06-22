@@ -10,19 +10,24 @@ module Control.Error.Util (
     hoistMaybe,
     (??),
     (!?),
+
     -- * MaybeT
     maybeT,
     just,
     nothing,
+
     -- * Either
     isLeft,
     isRight,
     fmapR,
+
     -- * EitherT
     fmapRT,
+
     -- * Error Reporting
     err,
     errLn,
+
     -- * Exceptions
     tryIO,
     syncIO 
