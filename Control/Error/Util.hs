@@ -33,8 +33,8 @@ module Control.Error.Util (
     syncIO 
     ) where
 
-import Control.Applicative
-import Control.Exception
+import Control.Applicative (Applicative, pure, (<$>))
+import qualified Control.Exception as Ex
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
@@ -120,31 +120,31 @@ err = hPutStr stderr
 errLn :: String -> IO ()
 errLn = hPutStrLn stderr
 
--- | Catch 'IOException's and convert them to the 'EitherT' monad
-tryIO :: (MonadIO m) => IO a -> EitherT IOException m a
-tryIO = EitherT . liftIO . try
+-- | Catch 'Ex.IOException's and convert them to the 'EitherT' monad
+tryIO :: (MonadIO m) => IO a -> EitherT Ex.IOException m a
+tryIO = EitherT . liftIO . Ex.try
 
-{-| Catch all exceptions, except for asynchronous exceptions from
-    @Control.Exception@, and convert them to the 'EitherT' monad
+{-| Catch all exceptions, except for asynchronous exceptions found in @base@
+    and convert them to the 'EitherT' monad
 -}
-syncIO :: MonadIO m => IO a -> EitherT SomeException m a
-syncIO a = EitherT . liftIO $ catches (Right <$> a)
-    [ Handler $ \e -> throw (e :: ArithException)
-    , Handler $ \e -> throw (e :: ArrayException)
-    , Handler $ \e -> throw (e :: AssertionFailed)
-    , Handler $ \e -> throw (e :: AsyncException)
-    , Handler $ \e -> throw (e :: BlockedIndefinitelyOnMVar)
-    , Handler $ \e -> throw (e :: BlockedIndefinitelyOnSTM)
-    , Handler $ \e -> throw (e :: Deadlock)
-    , Handler $ \e -> throw (e :: Dynamic)
-    , Handler $ \e -> throw (e :: ErrorCall)
-    , Handler $ \e -> throw (e :: ExitCode)
-    , Handler $ \e -> throw (e :: NestedAtomically)
-    , Handler $ \e -> throw (e :: NoMethodError)
-    , Handler $ \e -> throw (e :: NonTermination)
-    , Handler $ \e -> throw (e :: PatternMatchFail)
-    , Handler $ \e -> throw (e :: RecConError)
-    , Handler $ \e -> throw (e :: RecSelError)
-    , Handler $ \e -> throw (e :: RecUpdError)
-    , Handler $ return . Left
+syncIO :: MonadIO m => IO a -> EitherT Ex.SomeException m a
+syncIO a = EitherT . liftIO $ Ex.catches (Right <$> a)
+    [ Ex.Handler $ \e -> Ex.throw (e :: Ex.ArithException)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.ArrayException)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.AssertionFailed)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.AsyncException)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.BlockedIndefinitelyOnMVar)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.BlockedIndefinitelyOnSTM)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.Deadlock)
+    , Ex.Handler $ \e -> Ex.throw (e ::    Dynamic)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.ErrorCall)
+    , Ex.Handler $ \e -> Ex.throw (e ::    ExitCode)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NestedAtomically)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NoMethodError)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NonTermination)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.PatternMatchFail)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecConError)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecSelError)
+    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecUpdError)
+    , Ex.Handler $ return . Left
     ]
