@@ -8,7 +8,7 @@ module Control.Error.Util (
     note,
     noteT,
     hoistMaybe,
-    (?),
+    (??),
     (!?),
     -- * MaybeT
     maybeT,
@@ -68,8 +68,8 @@ hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
 
 -- | Convert a 'Maybe' value into the 'EitherT' monad.
-(?) :: Applicative m => Maybe a -> e -> EitherT e m a
-(?) a e = EitherT (pure $ note e a)
+(??) :: Applicative m => Maybe a -> e -> EitherT e m a
+(??) a e = EitherT (pure $ note e a)
 
 -- | Convert an applicative 'Maybe' value into the 'EitherT' monad.
 (!?) :: Applicative m => m (Maybe a) -> e -> EitherT e m a
