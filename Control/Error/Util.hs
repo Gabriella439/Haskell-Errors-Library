@@ -20,6 +20,8 @@ module Control.Error.Util (
     isLeft,
     isRight,
     fmapR,
+    AllE(..),
+    AnyE(..),
 
     -- * EitherT
     fmapRT,
@@ -40,6 +42,7 @@ import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT, runMaybeT))
 import Data.Dynamic (Dynamic)
+import Data.Monoid (Monoid(mempty, mappend))
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
 
@@ -107,6 +110,32 @@ isRight = either (const False) (const True)
 -- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
 fmapR :: (a -> b) -> Either l a -> Either l b
 fmapR = fmap
+
+{-| Run multiple 'Either' computations and succeed if all of them succeed
+
+    'mappend's all successes or failures
+-}
+newtype AllE e r = AllE { runAllE :: Either e r }
+
+instance (Monoid e, Monoid r) => Monoid (AllE e r) where
+    mempty = AllE (Right mempty)
+    mappend (AllE (Right x)) (AllE (Right y)) = AllE (Right (mappend x y))
+    mappend (AllE (Right _)) (AllE (Left  y)) = AllE (Left y)
+    mappend (AllE (Left  x)) (AllE (Right _)) = AllE (Left x)
+    mappend (AllE (Left  x)) (AllE (Left  y)) = AllE (Left  (mappend x y))
+
+{-| Run multiple 'Either' computations and succeed if any of them succeed
+
+    'mappend's all successes or failures
+-}
+newtype AnyE e r = AnyE { runAnyE :: Either e r }
+
+instance (Monoid e, Monoid r) => Monoid (AnyE e r) where
+    mempty = AnyE (Right mempty)
+    mappend (AnyE (Right x)) (AnyE (Right y)) = AnyE (Right (mappend x y))
+    mappend (AnyE (Right x)) (AnyE (Left  _)) = AnyE (Right x)
+    mappend (AnyE (Left  _)) (AnyE (Right y)) = AnyE (Right y)
+    mappend (AnyE (Left  x)) (AnyE (Left  y)) = AnyE (Left  (mappend x y))
 
 -- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
 fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
