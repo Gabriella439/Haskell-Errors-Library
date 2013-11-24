@@ -10,6 +10,8 @@ module Control.Error.Util (
     hoistMaybe,
     (??),
     (!?),
+    failWith,
+    failWithM,
 
     -- * MaybeT
     maybeT,
@@ -82,6 +84,20 @@ hoistMaybe = MaybeT . return
 -- | Convert an applicative 'Maybe' value into the 'EitherT' monad
 (!?) :: Applicative m => m (Maybe a) -> e -> EitherT e m a
 (!?) a e = EitherT (note e <$> a)
+
+{-| Convert a 'Maybe' value into the 'EitherT' monad
+
+    Named version of `(??)` with arguments flipped
+-}
+failWith :: Applicative m => e -> Maybe a -> EitherT e m a
+failWith e a = a ?? e
+
+{- | Convert an applicative 'Maybe' value into the 'EitherT' monad
+
+    Named version of `(!?)` with arguments flipped
+-}
+failWithM :: Applicative m => e -> m (Maybe a) -> EitherT e m a
+failWithM e a = a !? e
 
 {-| Case analysis for 'MaybeT'
 
