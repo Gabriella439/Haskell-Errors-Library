@@ -87,14 +87,14 @@ hoistMaybe = MaybeT . return
 
 {-| Convert a 'Maybe' value into the 'EitherT' monad
 
-    Named version of `(??)` with arguments flipped
+    Named version of ('??') with arguments flipped
 -}
 failWith :: Applicative m => e -> Maybe a -> EitherT e m a
 failWith e a = a ?? e
 
 {- | Convert an applicative 'Maybe' value into the 'EitherT' monad
 
-    Named version of `(!?)` with arguments flipped
+    Named version of ('!?') with arguments flipped
 -}
 failWithM :: Applicative m => e -> m (Maybe a) -> EitherT e m a
 failWithM e a = a !? e
