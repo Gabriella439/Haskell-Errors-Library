@@ -23,7 +23,7 @@ Source-Repository head
 Library
     Build-Depends:
         base         >= 4     && < 5  ,
-        either       >= 3.1   && < 4.1,
+        either       >= 3.1   && < 5  ,
         safe         >= 0.3.3 && < 0.4,
         transformers >= 0.2   && < 0.4
     Exposed-Modules:
