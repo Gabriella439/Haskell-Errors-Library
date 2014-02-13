@@ -45,6 +45,7 @@ import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT, runMaybeT))
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
+import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
 
@@ -84,6 +85,11 @@ hoistMaybe = MaybeT . return
 -- | Convert an applicative 'Maybe' value into the 'EitherT' monad
 (!?) :: Applicative m => m (Maybe a) -> e -> EitherT e m a
 (!?) a e = EitherT (note e <$> a)
+
+-- | An infix form of 'fromMaybe' with arguments flipped.
+(?:) :: Maybe a -> a -> a
+maybeA ?: b = fromMaybe b maybeA
+{-# INLINABLE (?:) #-}
 
 {-| Convert a 'Maybe' value into the 'EitherT' monad
 
