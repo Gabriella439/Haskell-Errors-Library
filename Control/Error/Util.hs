@@ -13,6 +13,9 @@ module Control.Error.Util (
     failWith,
     failWithM,
 
+    -- * Maybe
+    (?:),
+
     -- * MaybeT
     maybeT,
     just,
@@ -34,7 +37,7 @@ module Control.Error.Util (
 
     -- * Exceptions
     tryIO,
-    syncIO 
+    syncIO
     ) where
 
 import Control.Applicative (Applicative, pure, (<$>))
@@ -48,9 +51,6 @@ import Data.Monoid (Monoid(mempty, mappend))
 import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
-
--- For Documentation
-import Data.EitherR (fmapL, fmapLT)
 
 {- $conversion
     Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
@@ -129,7 +129,9 @@ isLeft = either (const True) (const False)
 isRight :: Either a b -> Bool
 isRight = either (const False) (const True)
 
--- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
+{- | 'fmap' specialized to 'Either', given a name symmetric to
+     'Data.EitherR.fmapL'
+-}
 fmapR :: (a -> b) -> Either l a -> Either l b
 fmapR = fmap
 
@@ -159,7 +161,9 @@ instance (Monoid e, Monoid r) => Monoid (AnyE e r) where
     mappend (AnyE (Left  _)) (AnyE (Right y)) = AnyE (Right y)
     mappend (AnyE (Left  x)) (AnyE (Left  y)) = AnyE (Left  (mappend x y))
 
--- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
+{- | 'fmap' specialized to 'EitherT', given a name symmetric to
+     'Data.EitherR.fmapLT'
+-}
 fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
 fmapRT = liftM
 
