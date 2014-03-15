@@ -13,6 +13,9 @@ module Control.Error.Util (
     failWith,
     failWithM,
 
+    -- * Bool
+    bool,
+
     -- * MaybeT
     maybeT,
     just,
@@ -34,7 +37,7 @@ module Control.Error.Util (
 
     -- * Exceptions
     tryIO,
-    syncIO 
+    syncIO
     ) where
 
 import Control.Applicative (Applicative, pure, (<$>))
@@ -104,6 +107,14 @@ failWith e a = a ?? e
 -}
 failWithM :: Applicative m => e -> m (Maybe a) -> EitherT e m a
 failWithM e a = a !? e
+
+{- | Case analysis for the 'Bool' type.
+
+   > bool a b c == if c then b else a
+-}
+bool :: a -> a -> Bool -> a
+bool a b = \c -> if c then b else a
+{-# INLINABLE bool #-}
 
 {-| Case analysis for 'MaybeT'
 
