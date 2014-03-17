@@ -13,6 +13,9 @@ module Control.Error.Util (
     failWith,
     failWithM,
 
+    -- * Bool
+    bool,
+
     -- * Maybe
     (?:),
 
@@ -20,6 +23,8 @@ module Control.Error.Util (
     maybeT,
     just,
     nothing,
+    isJustT,
+    isNothingT,
 
     -- * Either
     isLeft,
@@ -29,6 +34,8 @@ module Control.Error.Util (
     AnyE(..),
 
     -- * EitherT
+    isLeftT,
+    isRightT,
     fmapRT,
 
     -- * Error Reporting
@@ -44,7 +51,7 @@ import Control.Applicative (Applicative, pure, (<$>))
 import qualified Control.Exception as Ex
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
+import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT), eitherT)
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT, runMaybeT))
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
@@ -105,6 +112,14 @@ failWith e a = a ?? e
 failWithM :: Applicative m => e -> m (Maybe a) -> EitherT e m a
 failWithM e a = a !? e
 
+{- | Case analysis for the 'Bool' type.
+
+   > bool a b c == if c then b else a
+-}
+bool :: a -> a -> Bool -> a
+bool a b = \c -> if c then b else a
+{-# INLINABLE bool #-}
+
 {-| Case analysis for 'MaybeT'
 
     Use the first argument if the 'MaybeT' computation fails, otherwise apply
@@ -120,6 +135,16 @@ just a = MaybeT (return (Just a))
 -- | Analogous to 'Nothing' and equivalent to 'mzero'
 nothing :: (Monad m) => MaybeT m a
 nothing = MaybeT (return Nothing)
+
+-- | Analogous to 'Data.Maybe.isJust', but for 'MaybeT'
+isJustT :: (Monad m) => MaybeT m a -> m Bool
+isJustT = maybeT (return False) (\_ -> return True)
+{-# INLINABLE isJustT #-}
+
+-- | Analogous to 'Data.Maybe.isNothing', but for 'MaybeT'
+isNothingT :: (Monad m) => MaybeT m a -> m Bool
+isNothingT = maybeT (return True) (\_ -> return False)
+{-# INLINABLE isNothingT #-}
 
 -- | Returns whether argument is a 'Left'
 isLeft :: Either a b -> Bool
@@ -160,6 +185,16 @@ instance (Monoid e, Monoid r) => Monoid (AnyE e r) where
     mappend (AnyE (Right x)) (AnyE (Left  _)) = AnyE (Right x)
     mappend (AnyE (Left  _)) (AnyE (Right y)) = AnyE (Right y)
     mappend (AnyE (Left  x)) (AnyE (Left  y)) = AnyE (Left  (mappend x y))
+
+-- | Analogous to 'isLeft', but for 'EitherT'
+isLeftT :: (Monad m) => EitherT a m b -> m Bool
+isLeftT = eitherT (\_ -> return True) (\_ -> return False)
+{-# INLINABLE isLeftT #-}
+
+-- | Analogous to 'isRight', but for 'EitherT'
+isRightT :: (Monad m) => EitherT a m b -> m Bool
+isRightT = eitherT (\_ -> return False) (\_ -> return True)
+{-# INLINABLE isRightT #-}
 
 {- | 'fmap' specialized to 'EitherT', given a name symmetric to
      'Data.EitherR.fmapLT'
