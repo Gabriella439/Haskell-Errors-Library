@@ -16,6 +16,9 @@ module Control.Error.Util (
     -- * Bool
     bool,
 
+    -- * Maybe
+    (?:),
+
     -- * MaybeT
     maybeT,
     just,
@@ -55,9 +58,6 @@ import Data.Monoid (Monoid(mempty, mappend))
 import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
-
--- For Documentation
-import Data.EitherR (fmapL, fmapLT)
 
 {- $conversion
     Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
@@ -154,7 +154,9 @@ isLeft = either (const True) (const False)
 isRight :: Either a b -> Bool
 isRight = either (const False) (const True)
 
--- | 'fmap' specialized to 'Either', given a name symmetric to 'fmapL'
+{- | 'fmap' specialized to 'Either', given a name symmetric to
+     'Data.EitherR.fmapL'
+-}
 fmapR :: (a -> b) -> Either l a -> Either l b
 fmapR = fmap
 
@@ -194,7 +196,9 @@ isRightT :: (Monad m) => EitherT a m b -> m Bool
 isRightT = eitherT (\_ -> return False) (\_ -> return True)
 {-# INLINABLE isRightT #-}
 
--- | 'fmap' specialized to 'EitherT', given a name symmetric to 'fmapLT'
+{- | 'fmap' specialized to 'EitherT', given a name symmetric to
+     'Data.EitherR.fmapLT'
+-}
 fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
 fmapRT = liftM
 
