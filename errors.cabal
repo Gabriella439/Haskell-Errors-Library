@@ -1,5 +1,5 @@
 Name: errors
-Version: 1.4.6
+Version: 1.4.7
 Cabal-Version: >=1.8.0.2
 Build-Type: Simple
 License: BSD3
@@ -25,7 +25,7 @@ Library
         base         >= 4     && < 5  ,
         either       >= 3.1   && < 5  ,
         safe         >= 0.3.3 && < 0.4,
-        transformers >= 0.2   && < 0.4
+        transformers >= 0.2   && < 0.5
     Exposed-Modules:
         Control.Error,
         Control.Error.Safe,

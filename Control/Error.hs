@@ -48,7 +48,8 @@ import Control.Error.Safe
 import Control.Error.Script
 import Control.Error.Util
 import Control.Monad.Trans.Either (
-    EitherT(EitherT, runEitherT),
+    EitherT(EitherT),
+    runEitherT,
     eitherT,
     bimapEitherT,
     mapEitherT,
@@ -56,7 +57,8 @@ import Control.Monad.Trans.Either (
     left,
     right )
 import Control.Monad.Trans.Maybe (
-    MaybeT(MaybeT, runMaybeT),
+    MaybeT(MaybeT),
+    runMaybeT,
     mapMaybeT,
     liftCallCC,
     liftCatch,
