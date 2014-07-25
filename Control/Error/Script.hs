@@ -24,6 +24,7 @@ import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
 import Control.Error.Util (errLn)
 import Data.EitherR (fmapL)
+import System.Environment (getProgName)
 import System.Exit (exitFailure)
 
 -- Documentation
@@ -42,7 +43,7 @@ runScript s = do
     e <- runEitherT s
     case e of
         Left  e -> do
-            errLn e
+            errLn =<< liftM (++ ": " ++ e) getProgName
             exitFailure
         Right a -> return a
 
