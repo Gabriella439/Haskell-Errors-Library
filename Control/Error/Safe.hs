@@ -1,9 +1,9 @@
 {-| This module extends the @safe@ library's functions with corresponding
-    versions compatible with 'Either' and 'EitherT', and also provides a few
+    versions compatible with 'Either' and 'ExceptT', and also provides a few
     'Maybe'-compatible functions missing from @safe@.
 
     I suffix the 'Either'-compatible functions with @Err@ and prefix the
-    'EitherT'-compatible functions with @try@.
+    'ExceptT'-compatible functions with @try@.
 
     Note that this library re-exports the 'Maybe' compatible functions from
     @safe@ in the "Control.Error" module, so they are not provided here.
@@ -15,7 +15,7 @@
 
     * Most parsers
 
-    * 'EitherT' (if the left value is a 'Monoid')
+    * 'ExceptT' (if the left value is a 'Monoid')
 -}
 
 module Control.Error.Safe (
@@ -38,7 +38,7 @@ module Control.Error.Safe (
     assertErr,
     justErr,
 
-    -- * EitherT-compatible functions
+    -- * ExceptT-compatible functions
     tryTail,
     tryInit,
     tryHead,
@@ -71,9 +71,9 @@ module Control.Error.Safe (
     rightZ
     ) where
 
-import Control.Error.Util (note)
+import Control.Error.Util (note, hoistEither)
 import Control.Monad (MonadPlus(mzero))
-import Control.Monad.Trans.Either (EitherT, hoistEither)
+import Control.Monad.Trans.Except (ExceptT)
 import qualified Safe as S
 
 -- | An assertion that fails in the 'Maybe' monad
@@ -136,60 +136,60 @@ assertErr e p = if p then Right () else Left e
 justErr :: e -> Maybe a -> Either e a
 justErr e = maybe (Left e) Right
 
--- | A 'tail' that fails in the 'EitherT' monad
-tryTail :: (Monad m) => e -> [a] -> EitherT e m [a]
+-- | A 'tail' that fails in the 'ExceptT' monad
+tryTail :: (Monad m) => e -> [a] -> ExceptT e m [a]
 tryTail e xs = hoistEither $ tailErr e xs
 
--- | An 'init' that fails in the 'EitherT' monad
-tryInit :: (Monad m) => e -> [a] -> EitherT e m [a]
+-- | An 'init' that fails in the 'ExceptT' monad
+tryInit :: (Monad m) => e -> [a] -> ExceptT e m [a]
 tryInit e xs = hoistEither $ initErr e xs
 
--- | A 'head' that fails in the 'EitherT' monad
-tryHead :: (Monad m) => e -> [a] -> EitherT e m a
+-- | A 'head' that fails in the 'ExceptT' monad
+tryHead :: (Monad m) => e -> [a] -> ExceptT e m a
 tryHead e xs = hoistEither $ headErr e xs
 
--- | A 'last' that fails in the 'EitherT' monad
-tryLast :: (Monad m) => e -> [a] -> EitherT e m a
+-- | A 'last' that fails in the 'ExceptT' monad
+tryLast :: (Monad m) => e -> [a] -> ExceptT e m a
 tryLast e xs = hoistEither $ lastErr e xs
 
--- | A 'minimum' that fails in the 'EitherT' monad
-tryMinimum :: (Monad m, Ord a) => e -> [a] -> EitherT e m a
+-- | A 'minimum' that fails in the 'ExceptT' monad
+tryMinimum :: (Monad m, Ord a) => e -> [a] -> ExceptT e m a
 tryMinimum e xs = hoistEither $ maximumErr e xs
 
--- | A 'maximum' that fails in the 'EitherT' monad
-tryMaximum :: (Monad m, Ord a) => e -> [a] -> EitherT e m a
+-- | A 'maximum' that fails in the 'ExceptT' monad
+tryMaximum :: (Monad m, Ord a) => e -> [a] -> ExceptT e m a
 tryMaximum e xs = hoistEither $ maximumErr e xs
 
--- | A 'foldr1' that fails in the 'EitherT' monad
-tryFoldr1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
+-- | A 'foldr1' that fails in the 'ExceptT' monad
+tryFoldr1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> ExceptT e m a
 tryFoldr1 e step xs = hoistEither $ foldr1Err e step xs
 
--- | A 'foldl1' that fails in the 'EitherT' monad
-tryFoldl1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
+-- | A 'foldl1' that fails in the 'ExceptT' monad
+tryFoldl1 :: (Monad m) => e -> (a -> a -> a) -> [a] -> ExceptT e m a
 tryFoldl1 e step xs = hoistEither $ foldl1Err e step xs
 
--- | A 'foldl1'' that fails in the 'EitherT' monad
-tryFoldl1' :: (Monad m) => e -> (a -> a -> a) -> [a] -> EitherT e m a
+-- | A 'foldl1'' that fails in the 'ExceptT' monad
+tryFoldl1' :: (Monad m) => e -> (a -> a -> a) -> [a] -> ExceptT e m a
 tryFoldl1' e step xs = hoistEither $ foldl1Err' e step xs
 
--- | A ('!!') that fails in the 'EitherT' monad
-tryAt :: (Monad m) => e -> [a] -> Int -> EitherT e m a
+-- | A ('!!') that fails in the 'ExceptT' monad
+tryAt :: (Monad m) => e -> [a] -> Int -> ExceptT e m a
 tryAt e xs n = hoistEither $ atErr e xs n
 
--- | A 'read' that fails in the 'EitherT' monad
-tryRead :: (Monad m, Read a) => e -> String -> EitherT e m a
+-- | A 'read' that fails in the 'ExceptT' monad
+tryRead :: (Monad m, Read a) => e -> String -> ExceptT e m a
 tryRead e str = hoistEither $ readErr e str
 
--- | An assertion that fails in the 'EitherT' monad
-tryAssert :: (Monad m) => e -> Bool -> EitherT e m ()
+-- | An assertion that fails in the 'ExceptT' monad
+tryAssert :: (Monad m) => e -> Bool -> ExceptT e m ()
 tryAssert e p = hoistEither $ assertErr e p
 
--- | A 'fromJust' that fails in the 'EitherT' monad
-tryJust :: (Monad m) => e -> Maybe a -> EitherT e m a
+-- | A 'fromJust' that fails in the 'ExceptT' monad
+tryJust :: (Monad m) => e -> Maybe a -> ExceptT e m a
 tryJust e m = hoistEither $ justErr e m
 
--- | A 'fromRight' that fails in the 'EitherT' monad
-tryRight :: (Monad m) => Either e a -> EitherT e m a
+-- | A 'fromRight' that fails in the 'ExceptT' monad
+tryRight :: (Monad m) => Either e a -> ExceptT e m a
 tryRight = hoistEither
 
 -- | A 'tail' that fails using 'mzero'

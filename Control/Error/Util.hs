@@ -8,6 +8,7 @@ module Control.Error.Util (
     note,
     noteT,
     hoistMaybe,
+    hoistEither,
     (??),
     (!?),
     failWith,
@@ -33,10 +34,12 @@ module Control.Error.Util (
     AllE(..),
     AnyE(..),
 
-    -- * EitherT
+    -- * ExceptT
     isLeftT,
     isRightT,
     fmapRT,
+    exceptT,
+    bimapExceptT,
 
     -- * Error Reporting
     err,
@@ -51,7 +54,7 @@ import Control.Applicative (Applicative, pure, (<$>))
 import qualified Control.Exception as Ex
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Either (EitherT(EitherT), runEitherT, eitherT)
+import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
@@ -59,57 +62,72 @@ import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
 
+exceptT :: Monad m => (a -> m c) -> (b -> m c) -> ExceptT a m b -> m c
+exceptT f g (ExceptT m) = m >>= \z -> case z of
+    Left  a -> f a
+    Right b -> g b
+{-# INLINEABLE exceptT #-}
+
+bimapExceptT :: Functor m => (e -> f) -> (a -> b) -> ExceptT e m a -> ExceptT f m b
+bimapExceptT f g (ExceptT m) = ExceptT (fmap h m)
+  where
+    h (Left e)  = Left  (f e)
+    h (Right a) = Right (g a)
+{-# INLINEABLE bimapExceptT #-}
+
+hoistEither :: Monad m => Either e a -> ExceptT e m a
+hoistEither = ExceptT . return
+{-# INLINEABLE hoistEither #-}
+
 {- $conversion
     Use these functions to convert between 'Maybe', 'Either', 'MaybeT', and
-    'EitherT'.
-
-    Note that 'hoistEither' and 'eitherT' are provided by the @either@ package.
+    'ExceptT'.
 -}
 -- | Suppress the 'Left' value of an 'Either'
 hush :: Either a b -> Maybe b
 hush = either (const Nothing) Just
 
--- | Suppress the 'Left' value of an 'EitherT'
-hushT :: (Monad m) => EitherT a m b -> MaybeT m b
-hushT = MaybeT . liftM hush . runEitherT
+-- | Suppress the 'Left' value of an 'ExceptT'
+hushT :: (Monad m) => ExceptT a m b -> MaybeT m b
+hushT = MaybeT . liftM hush . runExceptT
 
 -- | Tag the 'Nothing' value of a 'Maybe'
 note :: a -> Maybe b -> Either a b
 note a = maybe (Left a) Right
 
 -- | Tag the 'Nothing' value of a 'MaybeT'
-noteT :: (Monad m) => a -> MaybeT m b -> EitherT a m b
-noteT a = EitherT . liftM (note a) . runMaybeT
+noteT :: (Monad m) => a -> MaybeT m b -> ExceptT a m b
+noteT a = ExceptT . liftM (note a) . runMaybeT
 
 -- | Lift a 'Maybe' to the 'MaybeT' monad
 hoistMaybe :: (Monad m) => Maybe b -> MaybeT m b
 hoistMaybe = MaybeT . return
 
--- | Convert a 'Maybe' value into the 'EitherT' monad
-(??) :: Applicative m => Maybe a -> e -> EitherT e m a
-(??) a e = EitherT (pure $ note e a)
+-- | Convert a 'Maybe' value into the 'ExceptT' monad
+(??) :: Applicative m => Maybe a -> e -> ExceptT e m a
+(??) a e = ExceptT (pure $ note e a)
 
--- | Convert an applicative 'Maybe' value into the 'EitherT' monad
-(!?) :: Applicative m => m (Maybe a) -> e -> EitherT e m a
-(!?) a e = EitherT (note e <$> a)
+-- | Convert an applicative 'Maybe' value into the 'ExceptT' monad
+(!?) :: Applicative m => m (Maybe a) -> e -> ExceptT e m a
+(!?) a e = ExceptT (note e <$> a)
 
 -- | An infix form of 'fromMaybe' with arguments flipped.
 (?:) :: Maybe a -> a -> a
 maybeA ?: b = fromMaybe b maybeA
 {-# INLINABLE (?:) #-}
 
-{-| Convert a 'Maybe' value into the 'EitherT' monad
+{-| Convert a 'Maybe' value into the 'ExceptT' monad
 
     Named version of ('??') with arguments flipped
 -}
-failWith :: Applicative m => e -> Maybe a -> EitherT e m a
+failWith :: Applicative m => e -> Maybe a -> ExceptT e m a
 failWith e a = a ?? e
 
-{- | Convert an applicative 'Maybe' value into the 'EitherT' monad
+{- | Convert an applicative 'Maybe' value into the 'ExceptT' monad
 
     Named version of ('!?') with arguments flipped
 -}
-failWithM :: Applicative m => e -> m (Maybe a) -> EitherT e m a
+failWithM :: Applicative m => e -> m (Maybe a) -> ExceptT e m a
 failWithM e a = a !? e
 
 {- | Case analysis for the 'Bool' type.
@@ -186,20 +204,20 @@ instance (Monoid e, Monoid r) => Monoid (AnyE e r) where
     mappend (AnyE (Left  _)) (AnyE (Right y)) = AnyE (Right y)
     mappend (AnyE (Left  x)) (AnyE (Left  y)) = AnyE (Left  (mappend x y))
 
--- | Analogous to 'isLeft', but for 'EitherT'
-isLeftT :: (Monad m) => EitherT a m b -> m Bool
-isLeftT = eitherT (\_ -> return True) (\_ -> return False)
+-- | Analogous to 'isLeft', but for 'ExceptT'
+isLeftT :: (Monad m) => ExceptT a m b -> m Bool
+isLeftT = exceptT (\_ -> return True) (\_ -> return False)
 {-# INLINABLE isLeftT #-}
 
--- | Analogous to 'isRight', but for 'EitherT'
-isRightT :: (Monad m) => EitherT a m b -> m Bool
-isRightT = eitherT (\_ -> return False) (\_ -> return True)
+-- | Analogous to 'isRight', but for 'ExceptT'
+isRightT :: (Monad m) => ExceptT a m b -> m Bool
+isRightT = exceptT (\_ -> return False) (\_ -> return True)
 {-# INLINABLE isRightT #-}
 
-{- | 'fmap' specialized to 'EitherT', given a name symmetric to
+{- | 'fmap' specialized to 'ExceptT', given a name symmetric to
      'Data.EitherR.fmapLT'
 -}
-fmapRT :: (Monad m) => (a -> b) -> EitherT l m a -> EitherT l m b
+fmapRT :: (Monad m) => (a -> b) -> ExceptT l m a -> ExceptT l m b
 fmapRT = liftM
 
 -- | Write a string to standard error
@@ -210,15 +228,15 @@ err = hPutStr stderr
 errLn :: String -> IO ()
 errLn = hPutStrLn stderr
 
--- | Catch 'Ex.IOException's and convert them to the 'EitherT' monad
-tryIO :: (MonadIO m) => IO a -> EitherT Ex.IOException m a
-tryIO = EitherT . liftIO . Ex.try
+-- | Catch 'Ex.IOException's and convert them to the 'ExceptT' monad
+tryIO :: (MonadIO m) => IO a -> ExceptT Ex.IOException m a
+tryIO = ExceptT . liftIO . Ex.try
 
 {-| Catch all exceptions, except for asynchronous exceptions found in @base@
-    and convert them to the 'EitherT' monad
+    and convert them to the 'ExceptT' monad
 -}
-syncIO :: MonadIO m => IO a -> EitherT Ex.SomeException m a
-syncIO a = EitherT . liftIO $ Ex.catches (Right <$> a)
+syncIO :: MonadIO m => IO a -> ExceptT Ex.SomeException m a
+syncIO a = ExceptT . liftIO $ Ex.catches (Right <$> a)
     [ Ex.Handler $ \e -> Ex.throw (e :: Ex.ArithException)
     , Ex.Handler $ \e -> Ex.throw (e :: Ex.ArrayException)
     , Ex.Handler $ \e -> Ex.throw (e :: Ex.AssertionFailed)
