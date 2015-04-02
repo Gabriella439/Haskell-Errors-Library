@@ -62,12 +62,14 @@ import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
 
+-- | Fold an 'ExceptT' by providing one continuation for each constructor
 exceptT :: Monad m => (a -> m c) -> (b -> m c) -> ExceptT a m b -> m c
 exceptT f g (ExceptT m) = m >>= \z -> case z of
     Left  a -> f a
     Right b -> g b
 {-# INLINEABLE exceptT #-}
 
+-- | Transform the left and right value
 bimapExceptT :: Functor m => (e -> f) -> (a -> b) -> ExceptT e m a -> ExceptT f m b
 bimapExceptT f g (ExceptT m) = ExceptT (fmap h m)
   where
@@ -75,6 +77,7 @@ bimapExceptT f g (ExceptT m) = ExceptT (fmap h m)
     h (Right a) = Right (g a)
 {-# INLINEABLE bimapExceptT #-}
 
+-- | Upgrade an 'Either' to an 'ExceptT'
 hoistEither :: Monad m => Either e a -> ExceptT e m a
 hoistEither = ExceptT . return
 {-# INLINEABLE hoistEither #-}
