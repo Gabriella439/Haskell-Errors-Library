@@ -15,7 +15,7 @@
     * "Control.Error.Util": Utility functions and conversions between common
       error-handling types
 
-    * @Control.Monad.Trans.Either@: The 'EitherT' monad transformer
+    * @Control.Monad.Trans.Except@: The 'ExceptT' monad transformer
 
     * @Control.Monad.Trans.Maybe@: The 'MaybeT' monad transformer
 
@@ -36,7 +36,7 @@ module Control.Error (
     module Control.Error.Safe,
     module Control.Error.Script,
     module Control.Error.Util,
-    module Control.Monad.Trans.Either,
+    module Control.Monad.Trans.Except,
     module Control.Monad.Trans.Maybe,
     module Data.Either,
     module Data.EitherR,
@@ -47,15 +47,13 @@ module Control.Error (
 import Control.Error.Safe
 import Control.Error.Script
 import Control.Error.Util
-import Control.Monad.Trans.Either (
-    EitherT(EitherT),
-    runEitherT,
-    eitherT,
-    bimapEitherT,
-    mapEitherT,
-    hoistEither,
-    left,
-    right )
+import Control.Monad.Trans.Except (
+    ExceptT(ExceptT),
+    runExceptT,
+    throwE,
+    catchE,
+    mapExceptT,
+    withExceptT )
 import Control.Monad.Trans.Maybe (
     MaybeT(MaybeT),
     runMaybeT,

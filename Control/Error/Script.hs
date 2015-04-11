@@ -1,6 +1,6 @@
 {-|
     Use this module if you like to write simple scripts with 'String'-based
-    errors, but you prefer to use 'EitherT' to handle errors rather than
+    errors, but you prefer to use 'ExceptT' to handle errors rather than
     @Control.Exception@.
 
 > import Control.Error
@@ -21,7 +21,7 @@ module Control.Error.Script (
 import Control.Exception (try, SomeException)
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Either (EitherT(EitherT, runEitherT))
+import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import Control.Error.Util (errLn)
 import Data.EitherR (fmapL)
 import System.Environment (getProgName)
@@ -32,7 +32,7 @@ import Control.Monad.Trans.Class (lift)
 import System.IO (stderr)
 
 -- | An 'IO' action that can fail with a 'String' error message
-type Script = EitherT String IO
+type Script = ExceptT String IO
 
 {-| Runs the 'Script' monad
 
@@ -40,7 +40,7 @@ type Script = EitherT String IO
 -}
 runScript :: Script a -> IO a
 runScript s = do
-    e <- runEitherT s
+    e <- runExceptT s
     case e of
         Left  e -> do
             errLn =<< liftM (++ ": " ++ e) getProgName
@@ -52,8 +52,8 @@ runScript s = do
 
     Note that 'scriptIO' is compatible with the 'Script' monad.
 -}
-scriptIO :: (MonadIO m) => IO a -> EitherT String m a
-scriptIO = EitherT
+scriptIO :: (MonadIO m) => IO a -> ExceptT String m a
+scriptIO = ExceptT
          . liftIO
          . liftM (fmapL show)
          . (try :: IO a -> IO (Either SomeException a))
