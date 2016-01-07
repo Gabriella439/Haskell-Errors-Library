@@ -51,7 +51,7 @@ module Control.Error.Util (
     ) where
 
 import Control.Applicative (Applicative, pure, (<$>))
-import qualified Control.Exception as Ex
+import Control.Exception (Handler(..), IOException, SomeException)
 import Control.Monad (liftM)
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
@@ -61,6 +61,10 @@ import Data.Monoid (Monoid(mempty, mappend))
 import Data.Maybe (fromMaybe)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
+import UnexceptionalIO (UIO, Unexceptional)
+
+import qualified Control.Exception as Exception
+import qualified UnexceptionalIO   as UIO
 
 -- | Fold an 'ExceptT' by providing one continuation for each constructor
 exceptT :: Monad m => (a -> m c) -> (b -> m c) -> ExceptT a m b -> m c
@@ -231,31 +235,12 @@ err = hPutStr stderr
 errLn :: String -> IO ()
 errLn = hPutStrLn stderr
 
--- | Catch 'Ex.IOException's and convert them to the 'ExceptT' monad
-tryIO :: (MonadIO m) => IO a -> ExceptT Ex.IOException m a
-tryIO = ExceptT . liftIO . Ex.try
+-- | Catch 'IOException's and convert them to the 'ExceptT' monad
+tryIO :: MonadIO m => IO a -> ExceptT IOException m a
+tryIO = ExceptT . liftIO . Exception.try
 
 {-| Catch all exceptions, except for asynchronous exceptions found in @base@
     and convert them to the 'ExceptT' monad
 -}
-syncIO :: MonadIO m => IO a -> ExceptT Ex.SomeException m a
-syncIO a = ExceptT . liftIO $ Ex.catches (Right <$> a)
-    [ Ex.Handler $ \e -> Ex.throw (e :: Ex.ArithException)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.ArrayException)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.AssertionFailed)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.AsyncException)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.BlockedIndefinitelyOnMVar)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.BlockedIndefinitelyOnSTM)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.Deadlock)
-    , Ex.Handler $ \e -> Ex.throw (e ::    Dynamic)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.ErrorCall)
-    , Ex.Handler $ \e -> Ex.throw (e ::    ExitCode)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NestedAtomically)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NoMethodError)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.NonTermination)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.PatternMatchFail)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecConError)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecSelError)
-    , Ex.Handler $ \e -> Ex.throw (e :: Ex.RecUpdError)
-    , Ex.Handler $ return . Left
-    ]
+syncIO :: Unexceptional m => IO a -> ExceptT SomeException m a
+syncIO = ExceptT . UIO.liftUIO . UIO.fromIO
