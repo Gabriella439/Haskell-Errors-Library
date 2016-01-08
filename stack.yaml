@@ -1,0 +1,5 @@
+resolver: lts-4.0
+packages:
+- '.'
+extra-deps:
+- unexceptionalio-0.3.0
