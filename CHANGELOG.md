@@ -1,3 +1,8 @@
+# 2.1.0
+
+* Change `syncio` to use `unexceptionalio` to prove that all synchronous
+  exceptions were caught and handled
+
 # 2.0.0
 
 * Switch from `EitherT` to `ExceptT`
