@@ -1,3 +1,7 @@
+# 2.1.1
+
+* Increase upper bound on `transformers-compat`
+
 # 2.1.0
 
 * Change `syncio` to use `unexceptionalio` to prove that all synchronous
