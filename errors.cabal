@@ -16,6 +16,7 @@ Description:
     This library encourages an error-handling style that directly uses the type
     system, rather than out-of-band exceptions.
 Category: Control, Error Handling
+extra-source-files: CHANGELOG.md
 Source-Repository head
     Type: git
     Location: https://github.com/Gabriel439/Haskell-Errors-Library
