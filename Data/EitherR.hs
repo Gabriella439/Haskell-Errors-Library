@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 {-| This module provides 'throwEither' and 'catchEither' for 'Either'.  These two
     functions reside here because 'throwEither' and 'catchEither' correspond to 'return'
     and ('>>=') for the flipped 'Either' monad: 'EitherR'.  Additionally, this
@@ -63,6 +65,8 @@ import Control.Monad.Trans.Class (MonadTrans(lift))
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, throwE, catchE)
 import Data.Monoid (Monoid(mempty, mappend))
+
+import qualified Control.Monad.Trans.Except
 
 {-| If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
     corresponding success monad, where:
@@ -174,8 +178,13 @@ handleE :: (Monad m) => (a -> ExceptT b m r) -> ExceptT a m r -> ExceptT b m r
 handleE = flip catchE
 
 -- | Map a function over the 'Left' value of an 'ExceptT'
+#if MIN_VERSION_base(4,8,0)
+fmapLT :: Functor m => (a -> b) -> ExceptT a m r -> ExceptT b m r
+fmapLT = Control.Monad.Trans.Except.withExceptT
+#else
 fmapLT :: (Monad m) => (a -> b) -> ExceptT a m r -> ExceptT b m r
 fmapLT f = runExceptRT . fmap f . ExceptRT
+#endif
 
 -- | Flip the type variables of an 'ExceptT'
 flipET :: (Monad m) => ExceptT a m b -> ExceptT b m a
