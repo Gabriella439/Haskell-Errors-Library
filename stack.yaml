@@ -1,5 +1,1 @@
-resolver: lts-5.1
-packages:
-- '.'
-extra-deps:
-- unexceptionalio-0.3.0
+resolver: lts-7.11
