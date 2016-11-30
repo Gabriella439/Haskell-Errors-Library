@@ -35,4 +35,3 @@ Library
         Control.Error.Script,
         Control.Error.Util,
         Data.EitherR
-    GHC-Options: -O2
