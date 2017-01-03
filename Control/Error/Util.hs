@@ -47,14 +47,16 @@ module Control.Error.Util (
 
     -- * Exceptions
     tryIO,
+    handleExceptT,
     syncIO
     ) where
 
 import Control.Applicative (Applicative, pure, (<$>))
-import Control.Exception (Handler(..), IOException, SomeException)
+import Control.Exception (Handler(..), IOException, SomeException, Exception)
 import Control.Monad (liftM)
+import Control.Monad.Catch (MonadCatch, try)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
+import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, withExceptT)
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
@@ -238,6 +240,11 @@ errLn = hPutStrLn stderr
 -- | Catch 'IOException's and convert them to the 'ExceptT' monad
 tryIO :: MonadIO m => IO a -> ExceptT IOException m a
 tryIO = ExceptT . liftIO . Exception.try
+
+-- | Run a monad action which may throw an exception in the `ExceptT` monad
+handleExceptT :: (Exception e, Functor m, MonadCatch m) => (e -> x) -> m a -> ExceptT x m a
+handleExceptT handler = bimapExceptT handler id . ExceptT . try
+
 
 {-| Catch all exceptions, except for asynchronous exceptions found in @base@
     and convert them to the 'ExceptT' monad
