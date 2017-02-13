@@ -173,7 +173,7 @@ instance (MonadIO m) => MonadIO (ExceptRT r m) where
 succeedT :: (Monad m) => r -> ExceptRT r m e
 succeedT r = ExceptRT (return r)
 
--- | 'catchT' with the arguments flipped
+-- | 'catchE' with the arguments flipped
 handleE :: (Monad m) => (a -> ExceptT b m r) -> ExceptT a m r -> ExceptT b m r
 handleE = flip catchE
 
