@@ -10,7 +10,7 @@
       'EitherT', and 'MonadPlus' variations on total functions
 
     * "Control.Error.Script": Support for simple scripts that catch all errors
-      and transform them to 'String's
+      and transform them to 'Text'
 
     * "Control.Error.Util": Utility functions and conversions between common
       error-handling types

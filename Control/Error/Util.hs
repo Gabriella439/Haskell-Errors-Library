@@ -61,11 +61,13 @@ import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
 import System.Exit (ExitCode)
 import System.IO (hPutStr, hPutStrLn, stderr)
 import UnexceptionalIO (UIO, Unexceptional)
 
 import qualified Control.Exception as Exception
+import qualified Data.Text.IO
 import qualified UnexceptionalIO   as UIO
 
 -- | Fold an 'ExceptT' by providing one continuation for each constructor
@@ -230,12 +232,12 @@ fmapRT :: (Monad m) => (a -> b) -> ExceptT l m a -> ExceptT l m b
 fmapRT = liftM
 
 -- | Write a string to standard error
-err :: String -> IO ()
-err = hPutStr stderr
+err :: Text -> IO ()
+err = Data.Text.IO.hPutStr stderr
 
 -- | Write a string with a newline to standard error
-errLn :: String -> IO ()
-errLn = hPutStrLn stderr
+errLn :: Text -> IO ()
+errLn = Data.Text.IO.hPutStrLn stderr
 
 -- | Catch 'IOException's and convert them to the 'ExceptT' monad
 tryIO :: MonadIO m => IO a -> ExceptT IOException m a
