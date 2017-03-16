@@ -1,3 +1,16 @@
+# 2.2.0
+
+* BREAKING CHANGE: Use `Text` instead of `String`
+* Add `handleExceptT`
+
+# 2.1.3
+
+* Support older versions of `ghc`
+
+# 2.1.2
+
+* Increase upper bound on `transformers` dependency
+
 # 2.1.1
 
 * Increase upper bound on `transformers-compat`
