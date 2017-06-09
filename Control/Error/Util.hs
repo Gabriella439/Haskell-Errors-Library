@@ -127,6 +127,8 @@ hoistMaybe = MaybeT . return
 maybeA ?: b = fromMaybe b maybeA
 {-# INLINABLE (?:) #-}
 
+infixr 0 ?:
+
 {-| Convert a 'Maybe' value into the 'ExceptT' monad
 
     Named version of ('??') with arguments flipped
