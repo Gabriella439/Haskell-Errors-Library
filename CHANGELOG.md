@@ -1,3 +1,7 @@
+# 2.2.1
+
+* Add precedence and fixity for `(?:)`
+
 # 2.2.0
 
 * BREAKING CHANGE: Use `Text` instead of `String`
