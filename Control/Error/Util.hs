@@ -22,6 +22,7 @@ module Control.Error.Util (
 
     -- * MaybeT
     maybeT,
+    maybePure,
     just,
     nothing,
     isJustT,
@@ -158,6 +159,10 @@ bool a b = \c -> if c then b else a
 -}
 maybeT :: Monad m => m b -> (a -> m b) -> MaybeT m a -> m b
 maybeT mb kb (MaybeT ma) = ma >>= maybe mb kb
+
+-- | Lift a pure 'Maybe' value into 'MaybeT'
+maybePure :: Monad m => Maybe a -> MaybeT m a
+maybePure a = MaybeT (return a)
 
 -- | Analogous to 'Just' and equivalent to 'return'
 just :: (Monad m) => a -> MaybeT m a
