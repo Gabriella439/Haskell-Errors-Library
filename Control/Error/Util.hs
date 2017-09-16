@@ -54,22 +54,20 @@ module Control.Error.Util (
     ) where
 
 import Control.Applicative (Applicative, pure, (<$>))
-import Control.Exception (Handler(..), IOException, SomeException, Exception)
+import Control.Exception (IOException, SomeException, Exception)
 import Control.Monad (liftM)
 import Control.Monad.Catch (MonadCatch, try)
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, withExceptT)
+import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT)
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
-import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
 #if MIN_VERSION_base(4,9,0)
 import Data.Semigroup
 #endif
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import System.Exit (ExitCode)
-import System.IO (hPutStr, hPutStrLn, stderr)
-import UnexceptionalIO (UIO, Unexceptional)
+import System.IO (stderr)
+import UnexceptionalIO (Unexceptional)
 
 import qualified Control.Exception as Exception
 import qualified Data.Text.IO
