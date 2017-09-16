@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 -- | This module exports miscellaneous error-handling functions.
 
 module Control.Error.Util (
@@ -60,6 +62,9 @@ import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, withExceptT)
 import Control.Monad.Trans.Maybe (MaybeT(MaybeT), runMaybeT)
 import Data.Dynamic (Dynamic)
 import Data.Monoid (Monoid(mempty, mappend))
+#if MIN_VERSION_base(4,9,0)
+import Data.Semigroup
+#endif
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import System.Exit (ExitCode)
@@ -197,12 +202,22 @@ fmapR = fmap
 -}
 newtype AllE e r = AllE { runAllE :: Either e r }
 
+#if MIN_VERSION_base(4,9,0)
+instance (Semigroup e, Semigroup r) => Semigroup (AllE e r) where
+    AllE (Right x) <> AllE (Right y) = AllE (Right (x <> y))
+    AllE (Right _) <> AllE (Left  y) = AllE (Left y)
+    AllE (Left  x) <> AllE (Right _) = AllE (Left x)
+    AllE (Left  x) <> AllE (Left  y) = AllE (Left  (x <> y))
+#endif
+
 instance (Monoid e, Monoid r) => Monoid (AllE e r) where
     mempty = AllE (Right mempty)
+#if !(MIN_VERSION_base(4,11,0))
     mappend (AllE (Right x)) (AllE (Right y)) = AllE (Right (mappend x y))
     mappend (AllE (Right _)) (AllE (Left  y)) = AllE (Left y)
     mappend (AllE (Left  x)) (AllE (Right _)) = AllE (Left x)
     mappend (AllE (Left  x)) (AllE (Left  y)) = AllE (Left  (mappend x y))
+#endif
 
 {-| Run multiple 'Either' computations and succeed if any of them succeed
 
@@ -210,12 +225,22 @@ instance (Monoid e, Monoid r) => Monoid (AllE e r) where
 -}
 newtype AnyE e r = AnyE { runAnyE :: Either e r }
 
+#if MIN_VERSION_base(4,9,0)
+instance (Semigroup e, Semigroup r) => Semigroup (AnyE e r) where
+    AnyE (Right x) <> AnyE (Right y) = AnyE (Right (x <> y))
+    AnyE (Right x) <> AnyE (Left  _) = AnyE (Right x)
+    AnyE (Left  _) <> AnyE (Right y) = AnyE (Right y)
+    AnyE (Left  x) <> AnyE (Left  y) = AnyE (Left  (x <> y))
+#endif
+
 instance (Monoid e, Monoid r) => Monoid (AnyE e r) where
     mempty = AnyE (Right mempty)
+#if !(MIN_VERSION_base(4,11,0))
     mappend (AnyE (Right x)) (AnyE (Right y)) = AnyE (Right (mappend x y))
     mappend (AnyE (Right x)) (AnyE (Left  _)) = AnyE (Right x)
     mappend (AnyE (Left  _)) (AnyE (Right y)) = AnyE (Right y)
     mappend (AnyE (Left  x)) (AnyE (Left  y)) = AnyE (Left  (mappend x y))
+#endif
 
 -- | Analogous to 'isLeft', but for 'ExceptT'
 isLeftT :: (Monad m) => ExceptT a m b -> m Bool
