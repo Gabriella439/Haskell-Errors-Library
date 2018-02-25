@@ -1,3 +1,7 @@
+# 2.2.2
+
+* Support GHC 8.4 through compatibility with Semigroup/Monoid proposal
+
 # 2.2.1
 
 * Add precedence and fixity for `(?:)`

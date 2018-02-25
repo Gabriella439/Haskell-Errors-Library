@@ -3,7 +3,7 @@
 }:
 mkDerivation {
   pname = "errors";
-  version = "2.2.1";
+  version = "2.2.2";
   src = ./.;
   libraryHaskellDepends = [
     base exceptions safe text transformers transformers-compat
