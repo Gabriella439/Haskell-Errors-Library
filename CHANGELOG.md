@@ -1,3 +1,7 @@
+# 2.2.3
+
+* Increase upper bound on `transformers-compat`
+
 # 2.2.2
 
 * Support GHC 8.4 through compatibility with Semigroup/Monoid proposal
