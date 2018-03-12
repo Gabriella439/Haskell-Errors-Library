@@ -1,3 +1,7 @@
+# 2.2.5
+
+* Increase upper bound on `exceptions`
+
 # 2.2.4
 
 * Increase upper bound on `exceptions`
