@@ -67,11 +67,9 @@ import Data.Semigroup
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import System.IO (stderr)
-import UnexceptionalIO (Unexceptional)
 
 import qualified Control.Exception as Exception
 import qualified Data.Text.IO
-import qualified UnexceptionalIO   as UIO
 
 -- | Fold an 'ExceptT' by providing one continuation for each constructor
 exceptT :: Monad m => (a -> m c) -> (b -> m c) -> ExceptT a m b -> m c
@@ -276,5 +274,11 @@ handleExceptT handler = bimapExceptT handler id . ExceptT . try
 {-| Catch all exceptions, except for asynchronous exceptions found in @base@
     and convert them to the 'ExceptT' monad
 -}
-syncIO :: Unexceptional m => IO a -> ExceptT SomeException m a
-syncIO = ExceptT . UIO.liftUIO . UIO.fromIO
+syncIO :: MonadIO m => IO a -> ExceptT SomeException m a
+syncIO = ExceptT . liftIO . trySync
+
+trySync :: IO a -> IO (Either SomeException a)
+trySync io = (fmap Right io) `Exception.catch` \e ->
+  case Exception.fromException e of
+    Just (Exception.SomeAsyncException _) -> Exception.throwIO e
+    Nothing -> return (Left e)
