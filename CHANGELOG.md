@@ -1,3 +1,12 @@
+# 2.3.0
+
+* BREAKING CHANGE: `syncIO` now expects a `MonadIO` constraint instead of
+  `UnexceptionalIO`
+    * `syncIO` also changes how it detects asynchronous exceptions.  It now
+      decides based on whether or not an exception inherits from
+      `SomeAsyncException`
+    * See: https://github.com/Gabriel439/Haskell-Errors-Library/pull/53
+
 # 2.2.5
 
 * Increase upper bound on `exceptions`
