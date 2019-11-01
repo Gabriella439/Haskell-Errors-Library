@@ -77,7 +77,7 @@ import qualified Control.Monad.Trans.Except
 
     * Successful results abort the computation
 -}
-newtype EitherR r e = EitherR { runEitherR :: Either e r }
+newtype EitherR r e = EitherR { runEitherR :: Either e r } deriving Show
 
 instance Functor (EitherR r) where
     fmap = liftM
