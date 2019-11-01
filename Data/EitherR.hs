@@ -65,6 +65,7 @@ import Control.Monad.Trans.Class (MonadTrans(lift))
 import Control.Monad.IO.Class (MonadIO(liftIO))
 import Control.Monad.Trans.Except (ExceptT(ExceptT), runExceptT, throwE, catchE)
 import Data.Monoid (Monoid(mempty, mappend))
+import Data.Semigroup (Semigroup((<>)))
 
 import qualified Control.Monad.Trans.Except
 
@@ -78,6 +79,9 @@ import qualified Control.Monad.Trans.Except
     * Successful results abort the computation
 -}
 newtype EitherR r e = EitherR { runEitherR :: Either e r }
+
+instance Semigroup (EitherR r e) where
+  (EitherR x) <> (EitherR y) = EitherR $ flipEither $ flipEither x <> flipEither y
 
 instance Functor (EitherR r) where
     fmap = liftM
