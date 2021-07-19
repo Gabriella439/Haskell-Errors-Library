@@ -7,7 +7,7 @@
     standard error-handling libraries:
 
     * "Control.Error.Safe": Generalizes the @safe@ library, including 'Either',
-      'EitherT', and 'MonadPlus' variations on total functions
+      'ExceptT', and 'MonadPlus' variations on total functions
 
     * "Control.Error.Script": Support for simple scripts that catch all errors
       and transform them to 'Text'
