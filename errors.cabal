@@ -5,10 +5,10 @@ Build-Type: Simple
 Tested-With: GHC == 7.8.4, GHC == 7.10.2, GHC == 8.0.1
 License: BSD3
 License-File: LICENSE
-Copyright: 2012, 2013 Gabriel Gonzalez
-Author: Gabriel Gonzalez
-Maintainer: Gabriel439@gmail.com
-Bug-Reports: https://github.com/Gabriel439/Haskell-Errors-Library/issues
+Copyright: 2012, 2013 Gabriella Gonzalez
+Author: Gabriella Gonzalez
+Maintainer: GenuineGabriella@gmail.com
+Bug-Reports: https://github.com/Gabriella439/Haskell-Errors-Library/issues
 Synopsis: Simplified error-handling
 Description:
     The one-stop shop for all your error-handling needs!  Just import
@@ -20,7 +20,7 @@ Category: Control, Error Handling
 extra-source-files: CHANGELOG.md
 Source-Repository head
     Type: git
-    Location: https://github.com/Gabriel439/Haskell-Errors-Library
+    Location: https://github.com/Gabriella439/Haskell-Errors-Library
 
 Library
     Build-Depends:
