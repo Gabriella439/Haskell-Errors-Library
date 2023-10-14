@@ -68,6 +68,12 @@ import Data.Monoid (Monoid(mempty, mappend))
 
 import qualified Control.Monad.Trans.Except
 
+#if MIN_VERSION_base(4,9,0)
+-- Data.Semigroup was added in base-4.9
+import Data.Semigroup as Sem
+#endif
+
+
 {-| If \"@Either e r@\" is the error monad, then \"@EitherR r e@\" is the
     corresponding success monad, where:
 
@@ -78,6 +84,14 @@ import qualified Control.Monad.Trans.Except
     * Successful results abort the computation
 -}
 newtype EitherR r e = EitherR { runEitherR :: Either e r } deriving Show
+
+appendEitherR :: EitherR r e -> EitherR r e -> EitherR r e
+appendEitherR (EitherR x) (EitherR y) = EitherR $ flipEither $ flipEither x <> flipEither y
+
+#if MIN_VERSION_base(4,9,0)
+instance Sem.Semigroup (EitherR r e) where
+  (<>) = appendEitherR
+#endif
 
 instance Functor (EitherR r) where
     fmap = liftM
