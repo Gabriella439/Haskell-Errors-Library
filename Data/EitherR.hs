@@ -83,11 +83,10 @@ instance Functor (EitherR r) where
     fmap = liftM
 
 instance Applicative (EitherR r) where
-    pure  = return
+    pure  = EitherR (Left e)
     (<*>) = ap
 
 instance Monad (EitherR r) where
-    return e = EitherR (Left e)
     EitherR m >>= f = case m of
         Left  e -> f e
         Right r -> EitherR (Right r)
@@ -136,11 +135,10 @@ instance (Monad m) => Functor (ExceptRT r m) where
     fmap = liftM
 
 instance (Monad m) => Applicative (ExceptRT r m) where
-    pure  = return
+    pure e = ExceptRT (throwE e)
     (<*>) = ap
 
 instance (Monad m) => Monad (ExceptRT r m) where
-    return e = ExceptRT (throwE e)
     m >>= f = ExceptRT $ ExceptT $ do
         x <- runExceptT $ runExceptRT m
         runExceptT $ runExceptRT $ case x of
